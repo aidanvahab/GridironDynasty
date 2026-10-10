@@ -14,6 +14,14 @@ func sm() -> Node:
 func st() -> Node:
 	return tree.root.get_node("Settings")
 
+## Waits until `cond` is true (screen transitions are slower on software rendering).
+func wait_screen(cond: Callable, max_sec: float) -> void:
+	var t := 0.0
+	while t < max_sec and not cond.call():
+		await wait(0.25)
+		t += 0.25
+	await wait(0.5)
+
 func wait(sec: float) -> void:
 	await drv.wait(sec)
 
@@ -47,7 +55,7 @@ func scenario_career() -> void:
 	app().boot()
 	await wait(3.0)
 	app().go_new_career()
-	await wait(1.5)
+	await wait_screen(func(): return app().screen is NewCareerScreen, 20.0)
 	await shot("new_career_step1")
 	var nc: NewCareerScreen = app().screen
 	expect(nc != null, "new career wizard opened")
