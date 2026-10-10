@@ -1,0 +1,9 @@
+# Godot
+.godot/
+*.translation
+export.cfg
+export_credentials.cfg
+# Builds are produced into build/ and not committed
+build/
+*.tmp
+.DS_Store
