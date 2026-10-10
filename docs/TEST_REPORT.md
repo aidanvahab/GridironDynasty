@@ -36,7 +36,7 @@ test also fails it.
 | **I** Persistence | `persist_a` (create, sim 3 weeks, save) then a **separate process** `persist_b` (continue from menu): team, record, week, roster, ratings, stats, schedule results, player pool all restored | **PASS** |
 | **J** Settings | `settings_a` then a separate process `settings_b`: music volume, quality, camera shake, UI scale, difficulty persisted and re-applied to audio buses | **PASS** |
 | **K** Input | `input` under a real display: Space snap, key 1 targets receiver 1, mouse hold charges (0.74), release throws to that receiver, handoff gives control of the runner (W+Shift, Space juke), gamepad A snap, hold B targets receiver 2 and charges, release throws to receiver 2, Esc pauses/resumes, borderless fullscreen applied, window resized to 1280×720, quit to hub | **PASS** (synthetic gamepad events; no physical controller) |
-| **L** Extended stability | `stability`: 3 consecutive live matches (9–19, 7–29, 26–0) → scores consistent, node count 153/156/156, 0 orphan nodes, no duplicate ownership; plus the 3-season franchise test | **PASS** |
+| **L** Extended stability | `stability` (final code, headless, `speed=8 timeout=7200`): 3 consecutive live matches (10–16, 3–30, 6–10) → scores consistent, node count 165/165/165, 0 orphan nodes, week advanced once per game, no duplicate ownership; plus the 3-season franchise test | **PASS** |
 | **M** Release builds | see section 3 | Linux **PASS**, Windows **PASS (Wine)**, macOS built, **not run** |
 
 A rendered (non-accelerated) full match was also captured for visual review
@@ -44,12 +44,16 @@ A rendered (non-accelerated) full match was also captured for visual review
 rasterizer at ~3–8 fps a full game exceeds 30 minutes, so complete-game
 verification uses the headless 4× runs above.
 
+Final-code re-run (after the last fixes): unit tests 65/65, lint clean,
+`career` (rendered), `smoke`, `season`, `persist_a/b`, `settings_a/b`,
+`champ` and `stability` all **PASS**.
+
 ## 3. Release builds
 
 | Platform | Artifact | Built | Launched | Notes |
 |---|---|---|---|---|
 | Linux x86_64 | `dist/GridironDynasty-1.0.0-linux-x86_64.tar.gz` | yes | yes | From the packaged archive: main menu, existing save shown as "Continue Career", new career → hub, autoplayed quick match in progress (Q2, 7–3). Fell back to OpenGL automatically (no Vulkan driver). |
-| Windows x86_64 | `dist/GridironDynasty-1.0.0-windows-x86_64.zip` | yes | yes (Wine 11) | Main menu rendered with Vulkan (lavapipe) under Wine; quick match run from the packaged zip (see below). Not run on real Windows. Unsigned. |
+| Windows x86_64 | `dist/GridironDynasty-1.0.0-windows-x86_64.zip` | yes | yes (Wine 11) | Main menu rendered with Vulkan (lavapipe) under Wine; autoplayed quick match run from the packaged zip with all HUD text rendering (no missing glyphs). Not run on real Windows. Unsigned. |
 | macOS Universal (x86_64 + arm64) | `dist/GridironDynasty-1.0.0-macos-universal.zip` | yes | **no** (no macOS available) | `.app` bundle verified structurally: universal Mach-O, Info.plist (`com.gridirondynasty.game`, 1.0.0), embedded `.pck`, icon. Ad-hoc signed only; **not notarized**. |
 
 SHA-256 sums: `dist/SHA256SUMS.txt`.
