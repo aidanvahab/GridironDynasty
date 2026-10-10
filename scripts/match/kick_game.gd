@@ -12,7 +12,7 @@ enum Stage { AIM, POWER, FLIGHT, DONE }
 const ELEVATION := deg_to_rad(37.0)
 const MAX_AIM := deg_to_rad(14.0)
 
-var stage: Stage = Stage.AIM
+var stage: Stage = Stage.DONE ## idle until setup()
 var kicker: FieldAgent
 var ball: Football
 var dir: int = 1
@@ -76,6 +76,8 @@ func ideal_aim() -> float:
 	return atan2(to.dot(FieldCoords.offense_right(dir)), to.dot(FieldCoords.forward(dir)))
 
 func _physics_process(dt: float) -> void:
+	if kicker == null:
+		return
 	_t += dt
 	match stage:
 		Stage.AIM, Stage.POWER:

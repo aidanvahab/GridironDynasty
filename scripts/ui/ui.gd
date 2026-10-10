@@ -201,6 +201,13 @@ static func hbox(sep: int = 10) -> HBoxContainer:
 	h.add_theme_constant_override("separation", sep)
 	return h
 
+## Positions an anchored control at `pos` relative to its anchor point.
+static func place_at(c: Control, pos: Vector2) -> void:
+	c.offset_left = pos.x
+	c.offset_top = pos.y
+	c.offset_right = pos.x + c.custom_minimum_size.x
+	c.offset_bottom = pos.y + c.custom_minimum_size.y
+
 static func spacer(w: int = 0, h: int = 0) -> Control:
 	var c := Control.new()
 	c.custom_minimum_size = Vector2(w, h)

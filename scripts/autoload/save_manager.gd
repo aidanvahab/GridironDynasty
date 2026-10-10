@@ -6,20 +6,20 @@ extends Node
 
 signal saved(slot: int, ok: bool, message: String)
 
-const DIR := "user://saves"
+var dir := "user://saves" ## tests redirect this to keep real saves untouched
 const SLOTS := 3
 const GAME_ID := "gridiron_dynasty"
 
 var last_error: String = ""
 
 func _ready() -> void:
-	DirAccess.make_dir_recursive_absolute(DIR)
+	DirAccess.make_dir_recursive_absolute(dir)
 
 func slot_path(slot: int) -> String:
-	return "%s/career_%d.json" % [DIR, slot]
+	return "%s/career_%d.json" % [dir, slot]
 
 func backup_path(slot: int) -> String:
-	return "%s/career_%d.bak.json" % [DIR, slot]
+	return "%s/career_%d.bak.json" % [dir, slot]
 
 func has_save(slot: int) -> bool:
 	return FileAccess.file_exists(slot_path(slot)) or FileAccess.file_exists(backup_path(slot))

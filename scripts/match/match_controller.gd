@@ -238,7 +238,8 @@ func _build_hud() -> void:
 func _process(delta: float) -> void:
 	if rules == null:
 		return
-	hud.update_scorebug(rules)
+	var running := live.t if (live != null and live.stage == LivePlay.Stage.LIVE and state_tag == "live") else 0.0
+	hud.update_scorebug(rules, running)
 	_update_scoreboard()
 	for r in _sideline:
 		r.animate(delta)

@@ -217,5 +217,10 @@ func _setup_input_map() -> void:
 	_action("kick_power", [_key(KEY_SPACE), _mouse(MOUSE_BUTTON_LEFT), _pad(JOY_BUTTON_A)])
 	_action("kick_left", [_key(KEY_A), _key(KEY_LEFT), _axis(JOY_AXIS_LEFT_X, -1.0)], 0.2)
 	_action("kick_right", [_key(KEY_D), _key(KEY_RIGHT), _axis(JOY_AXIS_LEFT_X, 1.0)], 0.2)
-	# Menu navigation additions (ui_accept etc. exist by default).
+	# Menu navigation: D-pad is mapped by default; add the left stick and B/Back.
 	InputMap.action_add_event("ui_cancel", _pad(JOY_BUTTON_B))
+	InputMap.action_add_event("ui_up", _axis(JOY_AXIS_LEFT_Y, -1.0))
+	InputMap.action_add_event("ui_down", _axis(JOY_AXIS_LEFT_Y, 1.0))
+	InputMap.action_add_event("ui_left", _axis(JOY_AXIS_LEFT_X, -1.0))
+	InputMap.action_add_event("ui_right", _axis(JOY_AXIS_LEFT_X, 1.0))
+	InputMap.action_add_event("ui_accept", _pad(JOY_BUTTON_A))

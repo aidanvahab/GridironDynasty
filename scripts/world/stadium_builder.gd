@@ -540,11 +540,13 @@ func setup_lighting(time_of_day: String) -> void:
 			sm.ground_horizon_color = Color("#101B2B")
 			sm.ground_bottom_color = Color("#05080F")
 			sm.sun_angle_max = 0.0
-			sun.light_color = Color("#AFC6FF")
-			sun.light_energy = 0.35
-			sun.rotation_degrees = Vector3(-62, 35, 0)
-			e.ambient_light_energy = 0.35
-			tower_energy = 5.0
+			# "Moonlight" stands in for the combined stadium floodlights so the
+			# field reads clearly; spot lights add pools and glow.
+			sun.light_color = Color("#E8EEFF")
+			sun.light_energy = 0.95
+			sun.rotation_degrees = Vector3(-68, 35, 0)
+			e.ambient_light_energy = 0.55
+			tower_energy = 6.0
 		"evening":
 			sm.sky_top_color = Color("#2C4A7A")
 			sm.sky_horizon_color = Color("#F2A65A")

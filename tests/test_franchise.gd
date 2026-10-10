@@ -256,6 +256,9 @@ func test_repair_fixes_duplicate_ownership() -> void:
 func test_save_manager_atomic_and_backup() -> void:
 	var lg := _league(51, 10)
 	var sm: Node = Engine.get_main_loop().root.get_node("SaveManager")
+	var real_dir: String = sm.dir
+	sm.dir = "user://test_saves"
+	DirAccess.make_dir_recursive_absolute(sm.dir)
 	var slot := 2
 	sm.delete_slot(slot)
 	check(sm.save_league(lg, slot), "first save")
@@ -271,6 +274,7 @@ func test_save_manager_atomic_and_backup() -> void:
 	check(sm.last_error.contains("backup"))
 	sm.delete_slot(slot)
 	check(not sm.has_save(slot))
+	sm.dir = real_dir
 
 func test_multi_season_stability() -> void:
 	var lg := _league(77, 10)

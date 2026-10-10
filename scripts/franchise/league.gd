@@ -99,6 +99,7 @@ static func create_new(config: Dictionary, p_seed: int) -> League:
 		lg.teams[t.id] = t
 		lg.team_order.append(t.id)
 	lg.user_team_id = user_id
+	lg.meta["quick"] = bool(config.get("quick", false))
 	lg._populate_rosters()
 	for t in lg.teams.values():
 		lg.auto_depth(t)
@@ -123,7 +124,8 @@ func _team_quality() -> Dictionary:
 	for id in ids:
 		q[id] = shuffled[k % shuffled.size()]
 		k += 1
-	q[user_team_id] = 66
+	if not meta.get("quick", false):
+		q[user_team_id] = 66
 	return q
 
 func _populate_rosters() -> void:
@@ -147,6 +149,9 @@ func _populate_rosters() -> void:
 				add_player(p, tid)
 		_normalize_payroll(t)
 	# The overlooked franchise gets one reason for hope: a raw young quarterback.
+	if meta.get("quick", false):
+		_add_free_agent_pool()
+		return
 	var ut: Team = teams[user_team_id]
 	var qb := PlayerGenerator.create(rng, new_id(), "QB", 64, 22)
 	qb.potential = 90
@@ -157,7 +162,9 @@ func _populate_rosters() -> void:
 		nums.append(players[pid].number)
 	qb.number = PlayerGenerator.pick_number(rng, "QB", nums)
 	add_player(qb, user_team_id)
-	# Free-agent pool.
+	_add_free_agent_pool()
+
+func _add_free_agent_pool() -> void:
 	for pos in ROSTER_TEMPLATE:
 		for i in (3 if pos != "K" else 2):
 			var p := PlayerGenerator.create(rng, new_id(), pos, rng.randi_range(52, 66), rng.randi_range(23, 33))

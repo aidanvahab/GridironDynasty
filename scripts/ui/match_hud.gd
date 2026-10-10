@@ -55,7 +55,7 @@ var _modal_open: bool = false
 
 func _ready() -> void:
 	theme = UI.theme()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_scorebug()
 	_build_feedback()
@@ -65,7 +65,7 @@ func _ready() -> void:
 	_build_drive()
 	_build_kick_panel()
 	_overlay = Control.new()
-	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_overlay)
 	_debug = UI.label("", 16, Palette.GREEN, "body_bold")
@@ -74,8 +74,8 @@ func _ready() -> void:
 	add_child(_debug)
 	_toast = UI.label("", 24, Palette.GOLD, "sub")
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_toast.position = Vector2(-300, 140)
 	_toast.custom_minimum_size = Vector2(600, 0)
+	UI.place_at(_toast, Vector2(-300, 140))
 	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_toast.modulate.a = 0.0
 	add_child(_toast)
@@ -96,8 +96,8 @@ func set_teams(h: Team, a: Team, p_user_side: int) -> void:
 func _build_scorebug() -> void:
 	_bug = UI.panel(Color(Palette.NAVY, 0.92), 12, Color(1, 1, 1, 0.08), 8)
 	_bug.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_bug.position = Vector2(-470, 18)
 	_bug.custom_minimum_size = Vector2(940, 0)
+	UI.place_at(_bug, Vector2(-470, 18))
 	add_child(_bug)
 	var row := UI.hbox(8)
 	_bug.add_child(row)
@@ -142,7 +142,7 @@ func _build_scorebug() -> void:
 	_bug_labels["down"] = down
 	_bug_labels["spot"] = spot
 
-func update_scorebug(rules: RulesEngine) -> void:
+func update_scorebug(rules: RulesEngine, live_elapsed: float = 0.0) -> void:
 	var s := rules.state
 	for side in 2:
 		var b: Dictionary = _bug_labels["side%d" % side]
@@ -150,7 +150,9 @@ func update_scorebug(rules: RulesEngine) -> void:
 		(b["poss"] as Label).visible = s.phase == GameState.Phase.SCRIMMAGE and s.possession == side
 		(b["to"] as Label).text = "▮".repeat(s.timeouts[side]) if false else ("•" .repeat(s.timeouts[side]))
 	(_bug_labels["q"] as Label).text = rules.quarter_label()
-	(_bug_labels["clock"] as Label).text = RulesEngine.format_clock(s.clock)
+	# During a live snap the broadcast clock ticks down in real time; the rules
+	# engine charges the exact elapsed time when the play ends.
+	(_bug_labels["clock"] as Label).text = RulesEngine.format_clock(maxf(0.0, s.clock - live_elapsed))
 	var down_txt := rules.describe_down()
 	if s.phase == GameState.Phase.KICKOFF:
 		down_txt = "KICKOFF"
@@ -169,8 +171,8 @@ func update_scorebug(rules: RulesEngine) -> void:
 func _build_feedback() -> void:
 	_feedback = UI.label("", 34, Palette.CREAM, "heading")
 	_feedback.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_feedback.position = Vector2(-450, 128)
 	_feedback.custom_minimum_size = Vector2(900, 0)
+	UI.place_at(_feedback, Vector2(-450, 128))
 	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_feedback.add_theme_constant_override("outline_size", 10)
 	_feedback.add_theme_color_override("font_outline_color", Palette.NAVY)
@@ -179,7 +181,7 @@ func _build_feedback() -> void:
 	_banner = UI.panel(Palette.NAVY, 16, Palette.ORANGE, 24)
 	_banner.set_anchors_preset(Control.PRESET_CENTER)
 	_banner.custom_minimum_size = Vector2(760, 0)
-	_banner.position = Vector2(-380, -170)
+	UI.place_at(_banner, Vector2(-380, -170))
 	var v := UI.vbox(2)
 	_banner_title = UI.label("", 84, Palette.CREAM, "display")
 	_banner_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -231,8 +233,8 @@ func toast(text: String) -> void:
 func _build_hints() -> void:
 	var p := UI.panel(Color(Palette.NAVY, 0.8), 10, Color(0, 0, 0, 0), 10)
 	p.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	p.position = Vector2(-600, -62)
 	p.custom_minimum_size = Vector2(1200, 0)
+	UI.place_at(p, Vector2(-600, -62))
 	_hints = UI.label("", 20, Palette.CREAM, "semi")
 	_hints.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	p.add_child(_hints)
@@ -246,8 +248,8 @@ func set_hints(text: String) -> void:
 func _build_charge() -> void:
 	_charge_box = UI.vbox(2)
 	_charge_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_charge_box.position = Vector2(-200, -150)
 	_charge_box.custom_minimum_size = Vector2(400, 0)
+	UI.place_at(_charge_box, Vector2(-200, -150))
 	var l := UI.label("THROW POWER", 18, Palette.CREAM_DIM, "heading")
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_charge_box.add_child(l)
@@ -302,8 +304,8 @@ func set_debug(text: String) -> void:
 func _build_play_select() -> void:
 	_playselect = UI.panel(Color(Palette.NAVY, 0.95), 18, Color(1, 1, 1, 0.07), 18)
 	_playselect.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_playselect.position = Vector2(-900, -520)
 	_playselect.custom_minimum_size = Vector2(1800, 500)
+	UI.place_at(_playselect, Vector2(-900, -520))
 	add_child(_playselect)
 	var root := UI.hbox(18)
 	_playselect.add_child(root)
@@ -465,7 +467,7 @@ func _play_card(p: Dictionary) -> Button:
 	b.add_theme_stylebox_override("pressed", UI.box(Palette.PANEL_LIGHT, 12, Palette.ORANGE, 3, 8))
 	var v := UI.vbox(4)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.set_anchors_preset(Control.PRESET_FULL_RECT)
+	v.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	v.offset_left = 8
 	v.offset_top = 8
 	v.offset_right = -8
@@ -533,8 +535,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build_drive() -> void:
 	_drive = UI.panel(Color(Palette.NAVY, 0.93), 16, Color(1, 1, 1, 0.07), 18)
 	_drive.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
-	_drive.position = Vector2(-640, -330)
 	_drive.custom_minimum_size = Vector2(600, 600)
+	UI.place_at(_drive, Vector2(-640, -330))
 	add_child(_drive)
 	var v := UI.vbox(10)
 	_drive.add_child(v)
@@ -586,8 +588,8 @@ func drive_visible() -> bool:
 func _build_kick_panel() -> void:
 	_kick_panel = UI.panel(Color(Palette.NAVY, 0.9), 14, Palette.GOLD, 16)
 	_kick_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_kick_panel.position = Vector2(-330, -250)
 	_kick_panel.custom_minimum_size = Vector2(660, 0)
+	UI.place_at(_kick_panel, Vector2(-330, -250))
 	var v := UI.vbox(8)
 	_kick_panel.add_child(v)
 	_kick_info = UI.label("", 26, Palette.CREAM, "heading")
@@ -641,11 +643,11 @@ func _modal(width: int = 900) -> VBoxContainer:
 	_modal_open = true
 	var dim := ColorRect.new()
 	dim.color = Color(0.02, 0.04, 0.08, 0.72)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_overlay.add_child(dim)
 	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_overlay.add_child(center)
 	var p := UI.panel(Palette.NAVY, 20, Palette.PANEL_LIGHT, 28)
 	p.custom_minimum_size = Vector2(width, 0)

@@ -57,15 +57,16 @@ func _desired() -> Array:
 	match mode:
 		Mode.PRESNAP:
 			var base := Vector3(anchor.x, 0, anchor.z * 0.55)
-			return [base - fwd * 12.5 + up * 7.8, base + fwd * 11.0 + up * 0.5]
+			# High enough to see the QB and backfield as well as the safeties.
+			return [base - fwd * 14.0 + up * 10.5, base + fwd * 5.0 + up * 0.5]
 		Mode.LIVE, Mode.CELEBRATE:
 			return _live_framing()
 		Mode.KICK:
 			var b := tracked.global_position if tracked != null else anchor
-			var eye := anchor - fwd * 9.0 + up * 3.6
+			var eye := anchor - fwd * 11.0 + up * 6.5 + Vector3(0, 0, -anchor.z * 0.2)
 			var look := kick_target.lerp(b, 0.35) + up * 2.0
 			if tracked != null and tracked.global_position.distance_to(anchor) > 6.0:
-				eye = eye.lerp(b - fwd * 12.0 + up * 4.0, 0.5)
+				eye = eye.lerp(Vector3(b.x, 0, b.z) - fwd * 14.0 + up * 8.0, 0.5)
 			return [eye, look]
 		Mode.WIDE:
 			var c := Vector3(anchor.x * 0.8, 0, 0)
@@ -93,9 +94,9 @@ func _live_framing() -> Array:
 	var c: FieldAgent = play.ball.carrier as FieldAgent
 	var ball_pos := play.ball.global_position
 	var focus := Vector3(ball_pos.x, 0, ball_pos.z)
-	var look_ahead := 8.0
+	var look_ahead := 7.0
 	var back := 11.0
-	var height := 7.0
+	var height := 8.0
 	if play.ball.state == Football.State.FLIGHT and play.thrown:
 		var land: Vector3 = play.pass_land
 		focus = Vector3(ball_pos.x, 0, ball_pos.z).lerp(land, 0.45)
@@ -110,7 +111,7 @@ func _live_framing() -> Array:
 			var ahead := focus + fwd * 9.0
 			if tgt != null:
 				ahead = ahead.lerp(tgt.flat_pos(), 0.3)
-			return [focus - fwd * 10.5 + up * 7.2 + Vector3(0, 0, -focus.z * 0.25), ahead + up * 0.5]
+			return [focus - fwd * 10.0 + up * 8.8 + Vector3(0, 0, -focus.z * 0.25), ahead + up * 0.5]
 		if assist:
 			focus += Vector3(c.vel.x, 0, c.vel.z) * 0.3
 		if c.unit == FieldAgent.Unit.DEFENSE:
