@@ -196,7 +196,7 @@ func simulate_play() -> Dictionary:
 	else:
 		r = _sim_run(off, dfn)
 		line = r.description
-	_record(off, dfn, r)
+	record_play(off, dfn, r)
 	events.append_array(rules.apply_scrimmage(r))
 	return {"text": line, "events": events, "call": call, "result": r}
 
@@ -368,7 +368,9 @@ func simulate_try() -> Dictionary:
 
 # ------------------------------------------------------------------ stats
 
-func _record(off: int, dfn: int, r: PlayResult) -> void:
+## Credits a play's statistics. Must be called before the play is applied
+## (it reads the pre-snap line of scrimmage).
+func record_play(off: int, dfn: int, r: PlayResult) -> void:
 	var c := r.credit
 	var s := rules.state
 	var gain := minf(r.gain, 100.0 - s.ball_on)

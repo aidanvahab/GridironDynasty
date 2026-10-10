@@ -105,6 +105,7 @@ static func create_new(config: Dictionary, p_seed: int) -> League:
 		lg._init_staff(t)
 		t.reset_record()
 	lg.history = {"champions": [], "awards": [], "drafts": [], "records": {}, "user_seasons": [], "hall": [], "transactions": []}
+	Season.generate_schedule(lg)
 	return lg
 
 func _team_quality() -> Dictionary:
@@ -373,3 +374,127 @@ func add_news(text: String, kind: String = "info") -> void:
 	news.push_front({"year": year, "week": week, "text": text, "kind": kind})
 	if news.size() > 60:
 		news.resize(60)
+
+# ------------------------------------------------------------- serialization
+
+func to_dict() -> Dictionary:
+	var tdict := {}
+	for id in teams:
+		tdict[id] = teams[id].to_dict()
+	var pdict := {}
+	for id in players:
+		pdict[id] = players[id].to_dict()
+	return {
+		"year": year, "week": week, "phase": int(phase), "offseason_stage": offseason_stage,
+		"teams": tdict, "team_order": team_order.duplicate(), "players": pdict,
+		"free_agents": free_agents.duplicate(), "prospects": prospects.duplicate(),
+		"schedule": schedule.duplicate(true), "playoffs": playoffs.duplicate(true),
+		"history": history.duplicate(true), "settings": settings.duplicate(true),
+		"user_team_id": user_team_id, "coach_name": coach_name, "next_id": next_id,
+		"seed": seed, "rng_state": rng.state, "news": news.duplicate(true),
+		"pending_event": pending_event.duplicate(true), "trade_offers": trade_offers.duplicate(true),
+		"draft_state": draft_state.duplicate(true), "meta": meta.duplicate(true),
+		"championship_name": championship_name, "league_name": league_name,
+		"conferences": conferences.duplicate(), "divisions": divisions.duplicate(true),
+	}
+
+## Builds a League from saved data. Returns null if essential data is missing.
+## Repairs inconsistent references (dangling ids, duplicated ownership).
+static func from_dict(d: Dictionary) -> League:
+	for key in ["teams", "players", "user_team_id", "year", "schedule"]:
+		if not d.has(key):
+			push_warning("Save is missing '%s'" % key)
+			return null
+	var lg := League.new()
+	lg.year = int(d.get("year", START_YEAR))
+	lg.week = int(d.get("week", 0))
+	lg.phase = clampi(int(d.get("phase", 0)), 0, 2) as Phase
+	lg.offseason_stage = str(d.get("offseason_stage", "review"))
+	for id in d["players"]:
+		var p := Player.from_dict(d["players"][id])
+		if p.id != "":
+			lg.players[p.id] = p
+	for id in d["teams"]:
+		var t := Team.from_dict(d["teams"][id])
+		lg.teams[t.id] = t
+	lg.team_order = d.get("team_order", lg.teams.keys())
+	lg.free_agents = d.get("free_agents", [])
+	lg.prospects = d.get("prospects", [])
+	lg.schedule = d.get("schedule", [])
+	lg.playoffs = d.get("playoffs", {})
+	lg.history = d.get("history", {})
+	for k in ["champions", "awards", "drafts", "user_seasons", "hall", "transactions"]:
+		if not lg.history.has(k):
+			lg.history[k] = []
+	if not lg.history.has("records"):
+		lg.history["records"] = {}
+	lg.settings = default_settings()
+	lg.settings.merge(d.get("settings", {}), true)
+	lg.user_team_id = str(d["user_team_id"])
+	lg.coach_name = str(d.get("coach_name", "Coach"))
+	lg.next_id = int(d.get("next_id", 1))
+	lg.seed = int(d.get("seed", 0))
+	lg.rng.seed = lg.seed
+	if d.has("rng_state"):
+		lg.rng.state = int(d["rng_state"])
+	lg.news = d.get("news", [])
+	lg.pending_event = d.get("pending_event", {})
+	lg.trade_offers = d.get("trade_offers", [])
+	lg.draft_state = d.get("draft_state", {})
+	lg.meta = d.get("meta", {})
+	lg.championship_name = str(d.get("championship_name", "Crown Bowl"))
+	lg.league_name = str(d.get("league_name", "United Gridiron League"))
+	lg.conferences = d.get("conferences", ["Atlantic", "Frontier"])
+	lg.divisions = d.get("divisions", [["Coast", "Harbor"], ["Summit", "Plains"]])
+	if not lg.teams.has(lg.user_team_id):
+		push_warning("Save references an unknown user team")
+		return null
+	lg.repair()
+	return lg
+
+## Enforces ownership invariants: every rostered player exists, belongs to
+## exactly one team, and the free-agent/prospect lists contain no owned players.
+func repair() -> int:
+	var fixes := 0
+	var owner := {}
+	for tid in team_order:
+		var t: Team = teams.get(tid)
+		if t == null:
+			continue
+		var clean: Array = []
+		for pid in t.roster:
+			var p: Player = players.get(pid)
+			if p == null or owner.has(pid) or p.retired:
+				fixes += 1
+				continue
+			owner[pid] = tid
+			if p.team_id != tid:
+				p.team_id = tid
+				fixes += 1
+			clean.append(pid)
+		t.roster = clean
+		sanitize_depth(t)
+	var fa: Array = []
+	for pid in free_agents:
+		var p: Player = players.get(pid)
+		if p == null or owner.has(pid) or fa.has(pid) or p.retired:
+			fixes += 1
+			continue
+		p.team_id = ""
+		fa.append(pid)
+	free_agents = fa
+	var pr: Array = []
+	for pid in prospects:
+		if players.has(pid) and not owner.has(pid) and not pr.has(pid):
+			pr.append(pid)
+		else:
+			fixes += 1
+	prospects = pr
+	# Players claimed by nobody become free agents.
+	for pid in players:
+		var p: Player = players[pid]
+		if not p.retired and not owner.has(pid) and not free_agents.has(pid) and not prospects.has(pid):
+			p.team_id = ""
+			free_agents.append(pid)
+			fixes += 1
+	return fixes

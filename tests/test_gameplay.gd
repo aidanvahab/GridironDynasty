@@ -109,3 +109,33 @@ func test_direction_minus_one_gains_are_positive_upfield() -> void:
 			gains += result.gain
 	check(gains > -6.0, "runs toward -X still gain yards (total %.1f)" % gains)
 	_teardown()
+
+func _kick(dir: int, ball_on: float, lateral: float, aim_off: float, power: float) -> Array:
+	var kg := KickGame.new()
+	root.add_child(kg)
+	var made := [null]
+	kg.finished.connect(func(m, _i): made[0] = m)
+	kg.rng.seed = 2
+	var k: FieldAgent = off_pool["QB"]
+	k.player.attrs["kick_power"] = 85
+	k.player.attrs["kick_acc"] = 95
+	kg.setup(k, ball, dir, ball_on, lateral, 0.0, 0.0, false)
+	kg.auto_plan = {"aim": kg.ideal_aim() + aim_off, "power": power}
+	for i in 900:
+		kg._physics_process(1.0 / 60.0)
+		if made[0] != null:
+			break
+	kg.queue_free()
+	return made
+
+func test_field_goal_physics_both_directions() -> void:
+	_setup()
+	for dir in [1, -1]:
+		for lat in [-3.0, 0.0, 3.0]:
+			var r := _kick(dir, 80.0, lat, 0.0, 0.9)
+			eq(r[0], true, "straight 37-yarder good (dir %d lat %.0f)" % [dir, lat])
+		var wide := _kick(dir, 80.0, 0.0, 0.25, 0.9)
+		eq(wide[0], false, "aimed far right misses (dir %d)" % dir)
+		var short := _kick(dir, 40.0, 0.0, 0.0, 0.3)
+		eq(short[0], false, "weak 77-yard kick falls short (dir %d)" % dir)
+	_teardown()
