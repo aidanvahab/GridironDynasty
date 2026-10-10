@@ -1,0 +1,34 @@
+{
+  "league_name": "United Gridiron League",
+  "league_abbr": "UGL",
+  "championship": "Crown Bowl",
+  "conferences": ["Atlantic", "Frontier"],
+  "divisions": [["Coast", "Harbor"], ["Summit", "Plains"]],
+  "teams": [
+    {"id": "HBG", "city": "Harborview", "name": "Gulls", "abbr": "HBV", "primary": "#1E5AA8", "secondary": "#F5F0E5", "accent": "#F4C95D", "logo": {"shape": "circle", "emblem": "wing"}, "stadium": "classic", "conf": 0, "div": 0, "offense": "pass", "defense": "conservative"},
+    {"id": "IWF", "city": "Ironwood", "name": "Forge", "abbr": "IRW", "primary": "#3A3F47", "secondary": "#F28C38", "accent": "#F5F0E5", "logo": {"shape": "shield", "emblem": "hammer"}, "stadium": "historic", "conf": 0, "div": 0, "offense": "run", "defense": "aggressive"},
+    {"id": "PSC", "city": "Port Sable", "name": "Corsairs", "abbr": "PSB", "primary": "#2B1D3D", "secondary": "#C9A227", "accent": "#E75A5A", "logo": {"shape": "shield", "emblem": "anchor"}, "stadium": "modern", "conf": 0, "div": 0, "offense": "balanced", "defense": "aggressive"},
+    {"id": "CBM", "city": "Coral Bay", "name": "Mantas", "abbr": "CBY", "primary": "#12827A", "secondary": "#F28C38", "accent": "#F5F0E5", "logo": {"shape": "circle", "emblem": "wave"}, "stadium": "modern", "conf": 0, "div": 0, "offense": "pass", "defense": "balanced"},
+    {"id": "KFM", "city": "Kingsford", "name": "Monarchs", "abbr": "KNG", "primary": "#4B2A7B", "secondary": "#F4C95D", "accent": "#F5F0E5", "logo": {"shape": "shield", "emblem": "crown"}, "stadium": "classic", "conf": 0, "div": 1, "offense": "balanced", "defense": "balanced"},
+    {"id": "NBF", "city": "Northbridge", "name": "Frost", "abbr": "NBR", "primary": "#8FC6E8", "secondary": "#1A2C45", "accent": "#F5F0E5", "logo": {"shape": "hex", "emblem": "flake"}, "stadium": "historic", "conf": 0, "div": 1, "offense": "run", "defense": "conservative"},
+    {"id": "BSB", "city": "Bayshore", "name": "Barracudas", "abbr": "BAY", "primary": "#0E6E9C", "secondary": "#B8E0D2", "accent": "#101B2B", "logo": {"shape": "diamond", "emblem": "fang"}, "stadium": "classic", "conf": 0, "div": 1, "offense": "pass", "defense": "aggressive"},
+    {"id": "LML", "city": "Lakemont", "name": "Loons", "abbr": "LKM", "primary": "#1F4D3A", "secondary": "#F5F0E5", "accent": "#E75A5A", "logo": {"shape": "circle", "emblem": "wing"}, "stadium": "historic", "conf": 0, "div": 1, "offense": "balanced", "defense": "conservative"},
+    {"id": "RRC", "city": "Redrock", "name": "Coyotes", "abbr": "RRK", "primary": "#B5462E", "secondary": "#F2D7A6", "accent": "#101B2B", "logo": {"shape": "diamond", "emblem": "fang"}, "stadium": "classic", "conf": 1, "div": 0, "offense": "run", "defense": "aggressive"},
+    {"id": "GFB", "city": "Granite Falls", "name": "Bighorns", "abbr": "GRF", "primary": "#5C5F66", "secondary": "#65C987", "accent": "#F5F0E5", "logo": {"shape": "shield", "emblem": "horn"}, "stadium": "historic", "conf": 1, "div": 0, "offense": "run", "defense": "balanced"},
+    {"id": "SMS", "city": "Sunmesa", "name": "Scorchers", "abbr": "SUN", "primary": "#E8611A", "secondary": "#FFD166", "accent": "#3A1F0D", "logo": {"shape": "circle", "emblem": "flame"}, "stadium": "modern", "conf": 1, "div": 0, "offense": "pass", "defense": "aggressive"},
+    {"id": "HPT", "city": "Highplains", "name": "Twisters", "abbr": "HPL", "primary": "#6A7FDB", "secondary": "#101B2B", "accent": "#F4C95D", "logo": {"shape": "hex", "emblem": "bolt"}, "stadium": "classic", "conf": 1, "div": 0, "offense": "balanced", "defense": "aggressive"},
+    {"id": "TBB", "city": "Thunder Basin", "name": "Bison", "abbr": "TBN", "primary": "#5A3825", "secondary": "#F28C38", "accent": "#F5F0E5", "logo": {"shape": "shield", "emblem": "horn"}, "stadium": "classic", "conf": 1, "div": 1, "offense": "run", "defense": "conservative"},
+    {"id": "SPL", "city": "Silverpine", "name": "Lumberjacks", "abbr": "SLP", "primary": "#2F6B3B", "secondary": "#D94F3D", "accent": "#F5F0E5", "logo": {"shape": "pennant", "emblem": "pine"}, "stadium": "historic", "conf": 1, "div": 1, "offense": "balanced", "defense": "balanced"},
+    {"id": "EVP", "city": "Ember Valley", "name": "Phoenix", "abbr": "EMV", "primary": "#9E1B32", "secondary": "#F4C95D", "accent": "#101B2B", "logo": {"shape": "diamond", "emblem": "flame"}, "stadium": "modern", "conf": 1, "div": 1, "offense": "pass", "defense": "balanced"},
+    {"id": "CCR", "city": "Cascade City", "name": "Rapids", "abbr": "CSC", "primary": "#2C7DA0", "secondary": "#A9D6E5", "accent": "#F28C38", "logo": {"shape": "circle", "emblem": "wave"}, "stadium": "modern", "conf": 1, "div": 1, "offense": "balanced", "defense": "conservative"}
+  ],
+  "custom_cities": ["Westhaven", "Copper Ridge", "Maple Hollow", "Stonebrook", "Duneport", "Riverbend", "Fort Calder", "Juniper Springs"],
+  "custom_names": ["Comets", "Stallions", "Raptors", "Voyagers", "Mustangs", "Sentinels", "Thunderbirds", "Pioneers", "Hornets", "Wolverines", "Outlaws", "Hurricanes"],
+  "logo_shapes": ["shield", "circle", "diamond", "hex", "pennant"],
+  "logo_emblems": ["star", "bolt", "wing", "flame", "crown", "horn", "anchor", "wave", "pine", "hammer", "fang", "flake", "letter"],
+  "color_presets": [
+    ["#F28C38", "#101B2B", "#F5F0E5"], ["#42B7AD", "#101B2B", "#F4C95D"], ["#E75A5A", "#F5F0E5", "#101B2B"],
+    ["#1E5AA8", "#F4C95D", "#F5F0E5"], ["#2F6B3B", "#F4C95D", "#F5F0E5"], ["#6B2D8C", "#F28C38", "#F5F0E5"],
+    ["#101B2B", "#F28C38", "#F5F0E5"], ["#C9A227", "#101B2B", "#F5F0E5"]
+  ]
+}

@@ -16,7 +16,7 @@ const FG_SNAP_DEPTH := 7.0 ## holder spot behind the line of scrimmage
 const TWO_MINUTES := 120.0
 
 enum Tempo { HURRY, NORMAL, CHEW }
-const TEMPO_SECONDS := {Tempo.HURRY: 12.0, Tempo.NORMAL: 26.0, Tempo.CHEW: 38.0}
+const TEMPO_SECONDS := {Tempo.HURRY: 15.0, Tempo.NORMAL: 36.0, Tempo.CHEW: 41.0}
 
 var state: GameState
 var quarter_length: float = 900.0

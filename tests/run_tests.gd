@@ -1,9 +1,24 @@
 extends SceneTree
 ## Headless test runner:
 ##   godot --headless --path . -s res://tests/run_tests.gd [-- filter]
-## Runs every test_* method in res://tests/test_*.gd and exits non-zero on failure.
+## Runs every test_* method in res://tests/test_*.gd and exits non-zero on
+## failure. Script errors raised while a test runs also fail that test.
+
+class ErrorCounter extends Logger:
+	var count := 0
+	var last := ""
+	func _log_error(function: String, file: String, line: int, code: String, rationale: String, _editor_notify: bool, error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
+		if error_type == ERROR_TYPE_WARNING:
+			return
+		count += 1
+		last = "%s (%s:%d %s)" % [rationale if rationale != "" else code, file, line, function]
+	func _log_message(_message: String, _error: bool) -> void:
+		pass
+
+var counter := ErrorCounter.new()
 
 func _init() -> void:
+	OS.add_logger(counter)
 	call_deferred("_run")
 
 func _run() -> void:
@@ -22,9 +37,11 @@ func _run() -> void:
 	var asserts := 0
 	var t0 := Time.get_ticks_msec()
 	for f in files:
+		if filter != "" and not f.contains(filter.split(":")[0]) and not filter.contains(":"):
+			pass
 		var script: GDScript = load("res://tests/" + f)
-		if script == null:
-			print("[LOAD FAIL] ", f)
+		if script == null or not script.can_instantiate():
+			print("  FAIL [parse error] ", f)
 			failed += 1
 			continue
 		for m in script.get_script_method_list():
@@ -36,11 +53,12 @@ func _run() -> void:
 			var inst: TestCase = script.new()
 			inst.current_test = f + ":" + name
 			total += 1
+			var errors_before := counter.count
 			var ret = inst.call(name)
-			if ret is Object and ret.has_method("is_valid"):
-				pass
 			if ret != null and typeof(ret) == TYPE_OBJECT:
 				await ret
+			if counter.count > errors_before:
+				inst.failures.append("%d script error(s), last: %s" % [counter.count - errors_before, counter.last])
 			asserts += inst.assertions
 			if inst.failures.is_empty():
 				print("  ok   ", inst.current_test)
