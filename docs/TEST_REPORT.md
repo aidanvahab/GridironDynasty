@@ -25,7 +25,7 @@ test also fails it.
 
 | Test | Scenario | Result |
 |---|---|---|
-| **A** New career | `career`: wizard (coach, franchise, rebrand to "Westhaven Comets", recommended setup, start) → hub; every hub tab opened | **PASS**, 0 errors, 16 screenshots |
+| **A** New career | `career`: wizard (coach, franchise, rebrand to "Westhaven Comets", recommended setup, start) → hub; every hub tab opened. Re-run on the final code under heavy CPU load: initially exposed a real bug (a screen change requested during a fade was dropped), fixed in `App.change_screen` | **PASS**, 0 errors, 16 screenshots |
 | **B** Complete drive | covered by `match`/`stability` (completions, first downs credited; scoring log reconciles) and `input` (real-input pass thrown to the targeted receiver) | **PASS** |
 | **C** Incomplete pass | unit tests (spot/down/clock) + rendered `match`/`input` runs ("Broken up by #54", 1st→2nd & 10, 3 s charged) | **PASS** |
 | **D** Rushing TD | unit tests (TD → try → kickoff → possession) + full matches with rushing scores and tries | **PASS** |
@@ -53,6 +53,12 @@ verification uses the headless 4× runs above.
 | macOS Universal (x86_64 + arm64) | `dist/GridironDynasty-1.0.0-macos-universal.zip` | yes | **no** (no macOS available) | `.app` bundle verified structurally: universal Mach-O, Info.plist (`com.gridirondynasty.game`, 1.0.0), embedded `.pck`, icon. Ad-hoc signed only; **not notarized**. |
 
 SHA-256 sums: `dist/SHA256SUMS.txt`.
+
+**Font coverage.** The UI uses only glyphs contained in the bundled Barlow
+fonts (checked with fontTools), so text renders identically on systems
+without fallback fonts. An earlier build showed missing-glyph boxes under
+Wine (possession dot, star ratings, arrows); these were replaced with text,
+drawn arrow icons and progress bars and re-verified in screenshots.
 
 ## 4. Gameplay balance (bot-driven live snaps, `tools/balance.gd`, 150 snaps)
 
