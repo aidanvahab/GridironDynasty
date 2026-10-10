@@ -110,7 +110,7 @@ func _build_scorebug() -> void:
 		h.add_child(logo)
 		var abbr := UI.label("---", 30, Palette.CREAM, "heading")
 		h.add_child(abbr)
-		var poss := UI.label("●", 18, Palette.ORANGE, "heading")
+		var poss := UI.label("•", 40, Palette.ORANGE, "heading")
 		poss.visible = false
 		h.add_child(poss)
 		var score := UI.label("0", 38, Palette.CREAM, "display")
@@ -148,7 +148,7 @@ func update_scorebug(rules: RulesEngine, live_elapsed: float = 0.0) -> void:
 		var b: Dictionary = _bug_labels["side%d" % side]
 		(b["score"] as Label).text = str(s.score[side])
 		(b["poss"] as Label).visible = s.phase == GameState.Phase.SCRIMMAGE and s.possession == side
-		(b["to"] as Label).text = "▮".repeat(s.timeouts[side]) if false else ("•" .repeat(s.timeouts[side]))
+		(b["to"] as Label).text = "•".repeat(s.timeouts[side])
 	(_bug_labels["q"] as Label).text = rules.quarter_label()
 	# During a live snap the broadcast clock ticks down in real time; the rules
 	# engine charges the exact elapsed time when the play ends.
@@ -508,7 +508,8 @@ func _refresh_detail() -> void:
 	_ps_detail_desc.text = str(p.get("desc", ""))
 	var risk: int = p.get("risk", 1)
 	var reward: int = p.get("reward", 1)
-	_ps_detail_rr.text = "RISK %s   REWARD %s%s" % ["●".repeat(risk) + "○".repeat(3 - risk), "●".repeat(reward) + "○".repeat(3 - reward), "   (flipped)" if _ps_flip else ""]
+	var lvl := ["None", "Low", "Medium", "High"]
+	_ps_detail_rr.text = "RISK: %s   ·   REWARD: %s%s" % [lvl[clampi(risk, 0, 3)], lvl[clampi(reward, 0, 3)], "   (flipped)" if _ps_flip else ""]
 
 func _cycle_tempo() -> void:
 	_ps_tempo = (_ps_tempo + 1) % 3

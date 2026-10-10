@@ -356,7 +356,7 @@ func _home_season() -> void:
 	v.add_child(row)
 	var issues := _lineup_issues()
 	if not issues.is_empty():
-		v.add_child(UI.label("⚠ " + issues, 19, Palette.ORANGE, "body_bold"))
+		v.add_child(UI.label("Heads up: " + issues, 19, Palette.ORANGE, "body_bold"))
 	var btns := UI.hbox(12)
 	var play := UI.button("PLAY GAME", func(): App.start_franchise_match(g), "primary", 280)
 	play.custom_minimum_size = Vector2(280, 64)
@@ -419,7 +419,7 @@ func _home_offseason() -> void:
 	if st == "camp":
 		var issues := FranchiseOps.user_roster_issues(lg)
 		for iss in issues:
-			v.add_child(UI.label("⚠ " + iss, 20, Palette.ORANGE, "body_bold"))
+			v.add_child(UI.label("! " + iss, 20, Palette.ORANGE, "body_bold"))
 		var notes: Array = lg.meta.get("camp_notes", [])
 		if not notes.is_empty():
 			v.add_child(UI.label("DEVELOPMENT REPORT", 20, Palette.TEAL, "heading"))
@@ -428,7 +428,7 @@ func _home_offseason() -> void:
 				if p == null:
 					continue
 				var up: bool = int(n["to"]) > int(n["from"])
-				v.add_child(UI.label("%s %s (%s): %d → %d" % ["▲" if up else "▼", p.full_name(), p.pos, n["from"], n["to"]], 19, Palette.GREEN if up else Palette.RED, "body_bold"))
+				v.add_child(UI.label("%s %s (%s): %d » %d" % ["+" if up else "−", p.full_name(), p.pos, n["from"], n["to"]], 19, Palette.GREEN if up else Palette.RED, "body_bold"))
 	var next_txt: String = {"review": "OPEN RE-SIGNING PERIOD", "resign": "START THE DRAFT", "draft": "FINISH DRAFT", "free_agency": "BEGIN TRAINING CAMP", "camp": "START %d SEASON" % (lg.year + 1)}.get(st, "CONTINUE")
 	var cont := UI.button(next_txt, _advance_offseason, "primary", 360)
 	v.add_child(cont)
@@ -584,7 +584,7 @@ func _tab_roster() -> void:
 	table.add_theme_constant_override("v_separation", 4)
 	for col in [["", ""], ["PLAYER", "pos"], ["POS", "pos"], ["AGE", "age"], ["OVR", "ovr"], ["POT", "pot"], ["CONTRACT", "salary"], ["MORALE", "morale"], ["STATUS", ""]]:
 		if col[1] != "":
-			var hb := UI.button(col[0] + (" ▼" if _roster_sort == col[1] else ""), func():
+			var hb := UI.button(col[0] + ("  •" if _roster_sort == col[1] else ""), func():
 				_roster_sort = col[1]
 				show_tab("roster"), "ghost", 0)
 			hb.custom_minimum_size = Vector2(0, 36)
@@ -847,10 +847,14 @@ func _tab_depth() -> void:
 			var nl := UI.label("%s  (%d)%s" % [p.full_name(), p.overall(), "  INJ" if p.injury_weeks > 0 else ""], 19, Palette.CREAM if starter else Palette.CREAM_DIM, "body_bold")
 			nl.custom_minimum_size = Vector2(380, 0)
 			row.add_child(nl)
-			var up := UI.button("▲", func(): _move_depth(pos, i, -1), "ghost", 50)
+			var up := UI.button("", func(): _move_depth(pos, i, -1), "ghost", 50)
+			up.icon = UI.arrow_icon(true)
+			up.tooltip_text = "Move up"
 			up.custom_minimum_size = Vector2(50, 34)
 			up.disabled = i == 0
-			var dn := UI.button("▼", func(): _move_depth(pos, i, 1), "ghost", 50)
+			var dn := UI.button("", func(): _move_depth(pos, i, 1), "ghost", 50)
+			dn.icon = UI.arrow_icon(false)
+			dn.tooltip_text = "Move down"
 			dn.custom_minimum_size = Vector2(50, 34)
 			dn.disabled = i == ids.size() - 1
 			row.add_child(up)
@@ -1158,7 +1162,7 @@ func _tab_draft() -> void:
 	for p in pros.slice(0, 40):
 		var r: Dictionary = reports[p.id]
 		var scouted: bool = ds.get("scouted", {}).get(p.id, false)
-		grid.add_child(UI.label(p.full_name() + ("  ✓" if scouted else ""), 19, Palette.CREAM, "body_bold"))
+		grid.add_child(UI.label(p.full_name() + ("  (scouted)" if scouted else ""), 19, Palette.CREAM, "body_bold"))
 		grid.add_child(UI.label(p.pos, 19, Palette.TEAL, "heading"))
 		grid.add_child(UI.label(str(p.age), 19, Palette.CREAM))
 		grid.add_child(UI.label("%d – %d" % [r["low"], r["high"]], 19, Palette.CREAM, "sub"))
@@ -1229,7 +1233,8 @@ func _tab_staff() -> void:
 		var n := UI.label(str(info["name"]).to_upper(), 19, Palette.GOLD, "heading")
 		n.custom_minimum_size = Vector2(300, 0)
 		row.add_child(n)
-		row.add_child(UI.label("Level %d / 5  %s" % [lvl, "■".repeat(lvl) + "□".repeat(5 - lvl)], 21, Palette.CREAM, "body_bold"))
+		row.add_child(UI.label("Level %d / 5" % lvl, 21, Palette.CREAM, "body_bold"))
+		row.add_child(UI.stat_bar(lvl, 5.0, Palette.TEAL, 120))
 		row.add_child(UI.label(str(info["effect"]), 17, Palette.CREAM_DIM))
 		row.add_child(UI.expand(UI.spacer()))
 		var cost := Finance.upgrade_cost(ut, key)
@@ -1250,9 +1255,7 @@ func _tab_staff() -> void:
 	money.add_child(UI.label("Revenue comes from home games (fans × stadium level) and the season-end league revenue share. Player salaries count against the cap, not the operating budget.", 18, Palette.CREAM_DIM))
 
 func _stars(r: float) -> String:
-	var full := int(floor(r))
-	var half := r - full >= 0.5
-	return "★".repeat(full) + ("½" if half else "") + "☆".repeat(maxi(0, 5 - full - (1 if half else 0)))
+	return "· %.1f / 5 stars" % r
 
 func _hire_modal(role: String) -> void:
 	var v := _modal(900)

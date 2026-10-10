@@ -53,4 +53,10 @@ Legend: [x] done and verified · [~] implemented, partially verified · [ ] not 
 - [x] Unit/integration tests (rules, sim, gameplay, franchise, persistence)
 - [x] E2E driver for the real app (`tools/e2e.gd`) with screenshots
 - [x] Export presets (Windows, macOS, Linux)
-- [ ] See README "Testing" for the latest verified results and build status
+- [x] E2E scenarios A–M (see docs/TEST_REPORT.md for results)
+- [x] Windows, macOS (universal) and Linux release builds packaged in `dist/`
+- [x] Font coverage: UI uses only glyphs present in Barlow (no OS fallback needed)
+- [x] CI workflow (`.github/workflows/build.yml`): lint, tests, exports, artifacts
+- [ ] Run on real Windows / macOS hardware with a GPU (not available here)
+- [ ] macOS Developer ID signing + notarization (needs Apple account)
+- [ ] Listening pass on audio mix; physical controller playtest

@@ -273,11 +273,11 @@ func _show_quick_match() -> void:
 	you_box.add_child(you_logo)
 	you_box.add_child(you_label)
 	var yb := UI.hbox(8)
-	yb.add_child(UI.button("◀", func():
+	yb.add_child(UI.button("‹", func():
 		sel["you"] = (sel["you"] - 1 + teams.size()) % teams.size()
 		if sel["you"] == sel["opp"]: sel["you"] = (sel["you"] - 1 + teams.size()) % teams.size()
 		refresh.call(), "secondary", 70))
-	yb.add_child(UI.button("▶", func():
+	yb.add_child(UI.button("›", func():
 		sel["you"] = (sel["you"] + 1) % teams.size()
 		if sel["you"] == sel["opp"]: sel["you"] = (sel["you"] + 1) % teams.size()
 		refresh.call(), "secondary", 70))
@@ -286,11 +286,11 @@ func _show_quick_match() -> void:
 	opp_box.add_child(opp_logo)
 	opp_box.add_child(opp_label)
 	var ob := UI.hbox(8)
-	ob.add_child(UI.button("◀", func():
+	ob.add_child(UI.button("‹", func():
 		sel["opp"] = (sel["opp"] - 1 + teams.size()) % teams.size()
 		if sel["you"] == sel["opp"]: sel["opp"] = (sel["opp"] - 1 + teams.size()) % teams.size()
 		refresh.call(), "secondary", 70))
-	ob.add_child(UI.button("▶", func():
+	ob.add_child(UI.button("›", func():
 		sel["opp"] = (sel["opp"] + 1) % teams.size()
 		if sel["you"] == sel["opp"]: sel["opp"] = (sel["opp"] + 1) % teams.size()
 		refresh.call(), "secondary", 70))

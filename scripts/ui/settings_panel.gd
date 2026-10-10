@@ -80,9 +80,9 @@ func _show(tab: String) -> void:
 			_slider("UI Scale", "ui_scale", 0.75, 1.5, 0.05)
 		"Gameplay":
 			var levels: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data/difficulty.json"))["levels"]
-			_options("Default Difficulty", "difficulty", levels.map(func(l): return l["name"]), "Used for new careers and Quick Match. Change a career's difficulty from its hub.")
+			_options("Difficulty", "difficulty", levels.map(func(l): return l["name"]), "Applies to every game, including your career. Changes defensive reaction speed, coverage, tackling and simulation balance.")
 			_options("Passing Assistance", "assist", ["Off", "Standard", "Full"], "Standard shows where the pass will land. Full throws with automatic lead and power.")
-			_options("Default Game Length", "game_length", ["Quick (4 min)", "Standard (6 min)", "Extended (10 min)", "Full (15 min)"])
+			_options("Game Length", "game_length", ["Quick (4 min)", "Standard (6 min)", "Extended (10 min)", "Full (15 min)"])
 			_toggle("Show route overlay before the snap", "show_routes")
 			_toggle("Coaching tips", "tutorial_enabled")
 			var rb := UI.button("REPLAY TUTORIAL TIPS", func():

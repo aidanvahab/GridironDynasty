@@ -128,6 +128,18 @@ static func _circle_icon(c: Color, size: int) -> ImageTexture:
 			img.set_pixel(x, y, Color(c.r, c.g, c.b, a))
 	return ImageTexture.create_from_image(img)
 
+## Small drawn triangle icon (fonts don't carry arrow glyphs on every OS).
+static func arrow_icon(up: bool, size: int = 18, c: Color = Palette.CREAM) -> ImageTexture:
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		var row := float(y) / float(size - 1)
+		var half_w := (row if up else 1.0 - row) * size * 0.5
+		for x in size:
+			var dx := absf(x + 0.5 - size * 0.5)
+			var a := clampf(half_w - dx + 0.5, 0.0, 1.0)
+			img.set_pixel(x, y, Color(c.r, c.g, c.b, a))
+	return ImageTexture.create_from_image(img)
+
 static func _check_icon(on: bool) -> ImageTexture:
 	var s := 26
 	var img := Image.create(s, s, false, Image.FORMAT_RGBA8)

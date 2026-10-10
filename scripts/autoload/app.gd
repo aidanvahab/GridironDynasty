@@ -198,7 +198,10 @@ func start_franchise_match(g: Dictionary) -> void:
 	if g.get("playoff", false):
 		title = Season.round_name(league, int(g["round"]))
 	var tod: String = "night" if g.get("playoff", false) else ["day", "evening", "night"][int(g["week"]) % 3]
+	# Gameplay preferences in Settings apply to every match, career games included.
 	league.settings["assist"] = Settings.get_value("assist")
+	league.settings["difficulty"] = Settings.get_value("difficulty")
+	league.settings["game_length"] = Settings.get_value("game_length")
 	var mc := MatchController.new()
 	change_screen(mc)
 	await get_tree().process_frame
@@ -231,6 +234,7 @@ func sim_user_week() -> Dictionary:
 	if g.is_empty():
 		last_report = Season.advance(league)
 	else:
+		league.settings["difficulty"] = Settings.get_value("difficulty")
 		var st := Season.sim_user_game(league, g)
 		var won := st.winner == (0 if g["home"] == league.user_team_id else 1)
 		FranchiseOps.after_user_game(league, won)

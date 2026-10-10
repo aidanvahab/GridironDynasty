@@ -10,6 +10,11 @@ OpenGL fallback). Offline, no accounts, no ads, no network access.
 
 ---
 
+| | |
+|---|---|
+| ![Main menu](docs/screenshots/main_menu.jpg) | ![Live play](docs/screenshots/gameplay_live.jpg) |
+| ![Play call](docs/screenshots/play_call.jpg) | ![Franchise hub](docs/screenshots/hub_home.jpg) |
+
 ## Playing
 
 ### Controls
@@ -59,13 +64,15 @@ explicit effects. Careers autosave after every game and offseason step.
 
 ## Download / run the builds
 
-Builds are produced into `build/` (not committed). See **Building** below.
+Packaged release builds are committed in `dist/` (checksums in
+`dist/SHA256SUMS.txt`); raw exports go to `build/` (not committed). See
+**Building** below.
 
 | Platform | File | How to run |
 |---|---|---|
-| Windows 10/11 (x86_64) | `build/windows/GridironDynasty.exe` | Double-click. Single self-contained executable. SmartScreen may warn because the build is unsigned: *More info → Run anyway*. |
-| macOS 11+ (Universal: Apple Silicon + Intel) | `build/macos/GridironDynasty.zip` | Unzip, then right-click **Gridiron Dynasty.app → Open** the first time. The app is ad-hoc signed only (not notarized), so Gatekeeper warns; or run `xattr -dr com.apple.quarantine "Gridiron Dynasty.app"`. |
-| Linux (x86_64) | `build/linux/GridironDynasty.x86_64` | `chmod +x` and run. |
+| Windows 10/11 (x86_64) | `dist/GridironDynasty-1.0.0-windows-x86_64.zip` | Unzip and double-click `GridironDynasty.exe` (single self-contained executable). SmartScreen may warn because the build is unsigned: *More info → Run anyway*. |
+| macOS 11+ (Universal: Apple Silicon + Intel) | `dist/GridironDynasty-1.0.0-macos-universal.zip` | Unzip, then right-click **Gridiron Dynasty.app → Open** the first time. The app is ad-hoc signed only (not notarized), so Gatekeeper warns; or run `xattr -dr com.apple.quarantine "Gridiron Dynasty.app"`. |
+| Linux (x86_64) | `dist/GridironDynasty-1.0.0-linux-x86_64.tar.gz` | Extract, then run `./GridironDynasty.x86_64`. |
 
 Saves and settings live in the per-user data folder:
 * Windows: `%APPDATA%\GridironDynasty\`
