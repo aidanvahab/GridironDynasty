@@ -93,24 +93,37 @@ func scenario_match() -> void:
 	expect(mc != null, "match controller started")
 	mc.autoplay = true
 	mc.live.input = null
+	var rules_ref: RulesEngine = mc.rules
 	var shot_tags := {}
 	var t := 0.0
 	var max_t := float(args.get("match_seconds", "900"))
+	mc.rules.state.clock = mc.rules.state.clock
 	var state_seen := {}
-	while t < max_t and app().screen == mc:
+	while t < max_t and is_instance_valid(mc) and app().screen == mc:
 		await wait(0.5)
 		t += 0.5
+		if not is_instance_valid(mc):
+			break
 		state_seen[mc.state_tag] = true
 		if not shot_tags.has(mc.state_tag) and mc.state_tag in ["play_select", "presnap", "live", "drive", "kick", "kick_show", "halftime", "post", "result"]:
 			shot_tags[mc.state_tag] = true
 			await shot("match_" + mc.state_tag)
-		if mc.state_tag == "live" and not shot_tags.has("live2") and mc.live.t > 1.2:
+		if is_instance_valid(mc) and mc.state_tag == "live" and not shot_tags.has("live2") and mc.live.t > 1.2:
 			shot_tags["live2"] = true
 			await shot("match_live_mid")
 	expect(app().screen is Hub or app().screen is ChampionshipScreen, "returned to hub after the match (states seen: %s)" % ", ".join(state_seen.keys()))
 	var played: Dictionary = Season.find_game(lg, g["id"])
 	expect(played.get("played", false), "user game recorded as played")
 	print("final: %s %d - %s %d" % [played["home"], played["hs"], played["away"], played["as"]])
+	var st: GameState = rules_ref.state
+	for e in st.scoring_log:
+		print("  score Q%d %s %s +%d -> %s" % [e["q"], RulesEngine.format_clock(e["clock"]), lg.teams[played["home"] if e["side"] == 0 else played["away"]].abbr, e["points"], str(e["score"])])
+	var tally := [0, 0]
+	for e in st.scoring_log:
+		tally[e["side"]] += int(e["points"])
+	expect(tally[0] == st.score[0] and tally[1] == st.score[1], "scoring log matches the final score")
+	expect(int(played["hs"]) == st.score[0] and int(played["as"]) == st.score[1], "schedule result matches the game state")
+	expect(st.is_over() and st.quarter >= 4, "game reached a legal ending (Q%d)" % st.quarter)
 	expect(lg.week == 1, "week advanced to 2")
 	var qb: Player = lg.starters(lg.user_team(), "QB", 1)[0]
 	expect(qb.stat("gp") >= 1.0, "player stats recorded")
@@ -242,3 +255,156 @@ func scenario_sizes() -> void:
 	await wait(1.5)
 	var c: Control = app().screen
 	print("records control size: ", c.size, " pos ", c.position, " anchors ", c.anchor_right, ",", c.anchor_bottom)
+
+# ---------------------------------------------------------------- input (TEST K)
+
+func _key(code: Key, pressed: bool) -> void:
+	var e := InputEventKey.new()
+	e.physical_keycode = code
+	e.keycode = code
+	e.pressed = pressed
+	Input.parse_input_event(e)
+
+func _tap(code: Key) -> void:
+	_key(code, true)
+	await wait(0.12)
+	_key(code, false)
+
+func _mouse_move(p: Vector2) -> void:
+	var e := InputEventMouseMotion.new()
+	e.position = p
+	e.global_position = p
+	Input.parse_input_event(e)
+	tree.root.warp_mouse(p)
+
+func _mouse_button(pressed: bool, p: Vector2) -> void:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = pressed
+	e.position = p
+	e.global_position = p
+	Input.parse_input_event(e)
+
+func _pad(btn: JoyButton, pressed: bool) -> void:
+	var e := InputEventJoypadButton.new()
+	e.button_index = btn
+	e.pressed = pressed
+	e.device = 0
+	Input.parse_input_event(e)
+
+func _wait_state(mc: MatchController, tag: String, max_sec: float) -> bool:
+	var t := 0.0
+	while mc.state_tag != tag and t < max_sec:
+		await wait(0.25)
+		t += 0.25
+	return mc.state_tag == tag
+
+func _choose(mc: MatchController, play_id: String) -> void:
+	mc.hud.play_chosen.emit(play_id, false, RulesEngine.Tempo.NORMAL)
+
+func scenario_input() -> void:
+	await _new_career(1)
+	var lg: League = app().league
+	var g := Season.user_game(lg)
+	app().start_franchise_match(g)
+	await wait(2.0)
+	var mc: MatchController = app().screen
+	# Force the user to receive so we get the ball quickly.
+	var guard := 0
+	while mc.state_tag != "play_select" and guard < 400:
+		guard += 1
+		await wait(0.5)
+	expect(mc.state_tag == "play_select", "reached play selection with user offense")
+	await shot("input_play_select")
+	# --- Keyboard + mouse pass ---
+	_choose(mc, "four_verts")
+	expect(await _wait_state(mc, "presnap", 10.0), "presnap after choosing a play")
+	await wait(0.6)
+	await _tap(KEY_SPACE)
+	expect(await _wait_state(mc, "live", 5.0), "Space snapped the ball")
+	await wait(0.9)
+	await _tap(KEY_1)
+	await wait(0.1)
+	expect(mc.live.target_idx == 0, "key 1 targeted receiver 1")
+	var x_screen := mc.cam.unproject_position(mc.live.receivers[0].global_position)
+	_mouse_move(x_screen + Vector2(0, -40))
+	await wait(0.2)
+	_mouse_button(true, x_screen)
+	await wait(0.55)
+	expect(mc.live.charge > 0.3, "holding the mouse charges the throw (%.2f)" % mc.live.charge)
+	await shot("input_charging")
+	_mouse_button(false, x_screen)
+	await wait(0.3)
+	expect(mc.live.thrown, "releasing the mouse throws the ball")
+	expect(mc.live.pass_target == mc.live.receivers[0], "pass went to the targeted receiver")
+	await shot("input_ball_in_air")
+	var t := 0.0
+	while mc.state_tag == "live" and t < 15.0:
+		await wait(0.25)
+		t += 0.25
+	expect(mc.state_tag != "live", "pass play ended")
+	# --- Keyboard run ---
+	expect(await _wait_state(mc, "play_select", 30.0) or mc.rules.state.possession != mc.user_side, "back at play select")
+	if mc.state_tag == "play_select":
+		var before := mc.rules.state.ball_on
+		_choose(mc, "inside_zone")
+		await _wait_state(mc, "presnap", 10.0)
+		await wait(0.5)
+		await _tap(KEY_SPACE)
+		await _wait_state(mc, "live", 5.0)
+		_key(KEY_W, true)
+		_key(KEY_SHIFT, true)
+		await wait(1.6)
+		var c := mc.live.ball.carrier as FieldAgent
+		expect(c != null and c == mc.live.user, "user controls the ball carrier after the handoff")
+		await shot("input_running")
+		await _tap(KEY_SPACE)
+		var tt := 0.0
+		while mc.state_tag == "live" and tt < 15.0:
+			await wait(0.25)
+			tt += 0.25
+		_key(KEY_W, false)
+		_key(KEY_SHIFT, false)
+		print("run from %.1f -> now %.1f (poss %d)" % [before, mc.rules.state.ball_on, mc.rules.state.possession])
+	# --- Gamepad pass (hold receiver button, release) ---
+	if await _wait_state(mc, "play_select", 30.0):
+		_choose(mc, "curl_flat")
+		await _wait_state(mc, "presnap", 10.0)
+		await wait(0.5)
+		_pad(JOY_BUTTON_A, true)
+		await wait(0.1)
+		_pad(JOY_BUTTON_A, false)
+		expect(await _wait_state(mc, "live", 5.0), "gamepad A snapped")
+		await wait(1.0)
+		_pad(JOY_BUTTON_B, true)
+		await wait(0.5)
+		expect(mc.live.target_idx == 1 and mc.live.charge > 0.2, "holding B targets receiver 2 and charges")
+		_pad(JOY_BUTTON_B, false)
+		await wait(0.3)
+		expect(mc.live.thrown and mc.live.pass_target == mc.live.receivers[1], "releasing B throws to receiver 2")
+		var t3 := 0.0
+		while mc.state_tag == "live" and t3 < 15.0:
+			await wait(0.25)
+			t3 += 0.25
+	# --- Pause ---
+	await wait(0.5)
+	await _tap(KEY_ESCAPE)
+	await wait(0.4)
+	expect(tree.paused and mc.paused, "Esc pauses the game")
+	await shot("input_pause")
+	mc._on_pause_action("resume")
+	await wait(0.3)
+	expect(not tree.paused, "resume unpauses")
+	# --- Window modes ---
+	st().set_value("window_mode", 2)
+	await wait(1.0)
+	expect(DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN, DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN], "fullscreen mode applied")
+	st().set_value("window_mode", 0)
+	st().set_value("resolution", 0)
+	await wait(1.0)
+	expect(DisplayServer.window_get_size() == Vector2i(1280, 720), "window resized to 1280x720 (%s)" % DisplayServer.window_get_size())
+	await shot("input_resized_1280")
+	st().set_value("resolution", 1)
+	mc._on_pause_action("quit")
+	await wait(2.0)
+	expect(app().screen is Hub, "quit to hub from pause")

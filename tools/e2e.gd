@@ -42,17 +42,19 @@ func sm() -> Node:
 func st() -> Node:
 	return root.get_node("Settings")
 
+## Waits `sec` of game time (wall-clock time scaled by Engine.time_scale).
 func wait(sec: float) -> void:
-	var t := 0.0
-	while t < sec:
+	var end := Time.get_ticks_msec() + int(sec * 1000.0 / maxf(Engine.time_scale, 0.01))
+	while Time.get_ticks_msec() < end:
 		await process_frame
-		t += maxf(root.get_process_delta_time(), 1.0 / 60.0)
 
 func wait_frames(n: int) -> void:
 	for i in n:
 		await process_frame
 
 func shot(name: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
 	await wait_frames(3)
 	var img := root.get_viewport().get_texture().get_image()
 	if img != null:
@@ -70,6 +72,12 @@ func expect(cond: bool, msg: String) -> void:
 
 func _run() -> void:
 	var scenario: String = args.get("scenario", "smoke")
+	# Optional time acceleration that keeps the 60 Hz simulation step.
+	var speed := float(args.get("speed", "1"))
+	if speed > 1.0:
+		Engine.time_scale = speed
+		Engine.physics_ticks_per_second = int(60 * speed)
+		Engine.max_physics_steps_per_frame = int(8 * speed)
 	var timeout := float(args.get("timeout", "600"))
 	create_timer(timeout).timeout.connect(func():
 		print("[FAIL] scenario timed out")

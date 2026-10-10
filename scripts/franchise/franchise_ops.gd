@@ -62,7 +62,7 @@ static func hire(lg: League, t: Team, role: String, idx: int) -> String:
 	var c: Dictionary = cands[idx]
 	var fee := hire_fee(c)
 	if t.funds < fee:
-		return "Not enough funds (%s signing fee)." % UI.money(fee)
+		return "Not enough funds (%s signing fee)." % Fmt.money(fee)
 	t.funds -= fee
 	var old: Dictionary = t.staff.get(role, {})
 	t.staff[role] = c.duplicate()
@@ -107,9 +107,9 @@ static func generate_event(lg: League) -> Dictionary:
 		"contract":
 			var ask := Contracts.asking(lg, ut, star)
 			return {"kind": kind, "player": star.id, "title": "%s Wants a New Deal" % star.full_name(),
-				"text": "%s (%s, %d OVR) feels underpaid at %s and wants an extension." % [star.full_name(), star.pos, star.overall(), UI.money(star.salary)],
+				"text": "%s (%s, %d OVR) feels underpaid at %s and wants an extension." % [star.full_name(), star.pos, star.overall(), Fmt.money(star.salary)],
 				"options": [
-					{"label": "Extend at %s × %d yrs" % [UI.money(ask["salary"]), ask["years"]], "effect": "Morale +15, salary rises to his ask"},
+					{"label": "Extend at %s × %d yrs" % [Fmt.money(ask["salary"]), ask["years"]], "effect": "Morale +15, salary rises to his ask"},
 					{"label": "Promise to revisit", "effect": "Morale -5"},
 					{"label": "Refuse", "effect": "Morale -15, team chemistry -3"}]}
 		"playing_time":
@@ -292,5 +292,5 @@ static func user_roster_issues(lg: League) -> Array:
 		if lg.position_count(t, pos) < int(Team.MIN_AT[pos]):
 			issues.append("Need at least %d %s." % [Team.MIN_AT[pos], pos])
 	if Contracts.cap_on(lg) and lg.payroll(t) > League.SALARY_CAP:
-		issues.append("Payroll %s exceeds the cap of %s." % [UI.money(lg.payroll(t)), UI.money(League.SALARY_CAP)])
+		issues.append("Payroll %s exceeds the cap of %s." % [Fmt.money(lg.payroll(t)), Fmt.money(League.SALARY_CAP)])
 	return issues

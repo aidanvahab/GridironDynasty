@@ -18,7 +18,7 @@ static func can_add(lg: League, t: Team, p: Player, salary: float) -> String:
 	if t.roster.size() >= Team.ROSTER_MAX:
 		return "Roster is full (%d players). Release someone first." % Team.ROSTER_MAX
 	if cap_on(lg) and lg.payroll(t) + salary > League.SALARY_CAP + 0.001:
-		return "Not enough cap space (%s available)." % UI.money(lg.cap_space(t))
+		return "Not enough cap space (%s available)." % Fmt.money(lg.cap_space(t))
 	return ""
 
 static func can_remove(lg: League, t: Team, p: Player) -> String:
@@ -57,7 +57,7 @@ static func sign_player(lg: League, t: Team, p: Player, salary: float, years: in
 		lg.sanitize_depth(t)
 	else:
 		lg.auto_depth(t)
-	log_tx(lg, "%s signed %s (%s) — %s × %d yr" % [t.abbr, p.full_name(), p.pos, UI.money(p.salary), p.years])
+	log_tx(lg, "%s signed %s (%s) — %s × %d yr" % [t.abbr, p.full_name(), p.pos, Fmt.money(p.salary), p.years])
 	return ""
 
 static func release(lg: League, t: Team, p: Player, force: bool = false) -> String:
@@ -122,16 +122,16 @@ static func negotiate(lg: League, t: Team, p: Player, salary: float, years: int)
 				p.salary = snappedf(salary, 0.05)
 				p.years = clampi(years, 1, 5)
 				p.morale = minf(100.0, p.morale + 6.0)
-				log_tx(lg, "%s re-signed %s — %s × %d yr" % [t.abbr, p.full_name(), UI.money(p.salary), p.years])
+				log_tx(lg, "%s re-signed %s — %s × %d yr" % [t.abbr, p.full_name(), Fmt.money(p.salary), p.years])
 		if err != "":
 			return {"accepted": false, "message": err, "ask": ask}
 		attempts.erase(p.id)
 		lg.meta["neg_attempts"] = attempts
-		return {"accepted": true, "message": "%s accepts: %s per year for %d year%s." % [p.full_name(), UI.money(salary), years, "s" if years > 1 else ""], "ask": ask}
+		return {"accepted": true, "message": "%s accepts: %s per year for %d year%s." % [p.full_name(), Fmt.money(salary), years, "s" if years > 1 else ""], "ask": ask}
 	used += 2 if ratio < 0.8 else 1
 	attempts[p.id] = used
 	lg.meta["neg_attempts"] = attempts
-	var msg := "%s wants about %s per year for %d years." % [p.full_name(), UI.money(ask["salary"]), ask["years"]]
+	var msg := "%s wants about %s per year for %d years." % [p.full_name(), Fmt.money(ask["salary"]), ask["years"]]
 	if ratio < 0.8:
 		msg = "%s is insulted by the offer. " % p.first_name + msg
 	return {"accepted": false, "message": msg, "ask": ask, "closed": used >= MAX_ATTEMPTS}

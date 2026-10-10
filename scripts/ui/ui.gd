@@ -255,9 +255,7 @@ static func separator() -> ColorRect:
 	return c
 
 static func money(m: float) -> String:
-	if absf(m) >= 1.0:
-		return "$%.1fM" % m
-	return "$%dK" % int(round(m * 1000.0))
+	return Fmt.money(m)
 
 ## Fades a control in from a slight offset.
 static func pop_in(c: Control, delay: float = 0.0) -> void:
@@ -267,10 +265,4 @@ static func pop_in(c: Control, delay: float = 0.0) -> void:
 	tw.tween_property(c, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_SINE)
 
 static func ordinal(n: int) -> String:
-	var suffix := "th"
-	if n % 100 < 11 or n % 100 > 13:
-		match n % 10:
-			1: suffix = "st"
-			2: suffix = "nd"
-			3: suffix = "rd"
-	return "%d%s" % [n, suffix]
+	return Fmt.ordinal(n)

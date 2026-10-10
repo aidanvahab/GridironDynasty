@@ -461,10 +461,15 @@ func snap() -> void:
 	t = 0.0
 	_snap_t = 0.0
 	sfx.emit("snap", slots["C"].global_position, 1.0)
-	set_overlay_visible(assist >= 1 and false)
-	for r in receivers:
-		r.show_tag("")
 	route_overlay.visible = false
+	# Receiver numbers stay up after the snap (that's when you target them)
+	# and disappear once the ball is thrown or handed off.
+	var pass_play := not designed_run and special == ""
+	for i in receivers.size():
+		var r: FieldAgent = receivers[i]
+		var rname: String = play_def.get("routes", {}).get(r.slot, "block")
+		var eligible := pass_play and not (rname in ["block", "stalk", "lead", "run"])
+		r.show_tag(str(i + 1) if eligible else "", SLOT_COLORS[r.slot])
 	var c: FieldAgent = slots["C"]
 	c.rig.set_pose(PlayerRig.Pose.SNAP)
 	c.rig.pose_time = 0.0
@@ -865,6 +870,7 @@ func _throw(power: float, tgt: FieldAgent) -> void:
 	}
 	credit["passer"] = qb.player.id
 	qb.rig.set_pose(PlayerRig.Pose.THROW)
+	_clear_tags()
 	aim_marker.visible = false
 	land_marker.visible = assist >= 1
 	land_marker.global_position = pass_land + Vector3(0, 0.05, 0)
@@ -1049,7 +1055,12 @@ func _ai_back(a: FieldAgent, dt: float) -> void:
 		return
 	_ai_block(b, dt)
 
+func _clear_tags() -> void:
+	for r in receivers:
+		r.show_tag("")
+
 func _handoff(rb: FieldAgent) -> void:
+	_clear_tags()
 	handed_off = true
 	handoff_target = rb
 	ball.give_to(rb)
@@ -1793,6 +1804,7 @@ func _end_play(reason: String) -> void:
 		end_reason = reason
 	stage = Stage.DEAD
 	dead_t = 0.0
+	_clear_tags()
 	aim_marker.visible = false
 	land_marker.visible = false
 	var c := _carrier()

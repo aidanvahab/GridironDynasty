@@ -8,6 +8,7 @@ extends PlayInput
 
 var _was_charging := false
 var _pad_target := -1
+var _blocked := true ## ignore throw buttons held over from before the snap
 const PAD_TARGETS := ["pad_target_1", "pad_target_2", "pad_target_3", "pad_target_4", "pad_target_5"]
 
 func poll(play: Node, _dt: float) -> void:
@@ -33,6 +34,15 @@ func poll(play: Node, _dt: float) -> void:
 				target = i
 	var mouse_charge := Input.is_action_pressed("throw")
 	var held := mouse_charge or pad_held >= 0
+	var live: bool = play.get("stage") == LivePlay.Stage.LIVE
+	if not live:
+		_blocked = true
+	elif _blocked and not held:
+		_blocked = false
+	if _blocked:
+		held = false
+		if live:
+			target = -1
 	if pad_held >= 0:
 		_pad_target = pad_held
 	charging = held

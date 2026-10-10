@@ -35,7 +35,7 @@ static func season_payout(lg: League) -> void:
 			bonus += 4.0
 		t.funds += bonus
 		if t.is_user:
-			lg.add_news("League revenue share: %s added to the budget." % UI.money(bonus), "finance")
+			lg.add_news("League revenue share: %s added to the budget." % Fmt.money(bonus), "finance")
 
 static func upgrade_cost(t: Team, key: String) -> float:
 	var lvl := int(t.facilities.get(key, 1))
@@ -48,7 +48,7 @@ static func upgrade(lg: League, t: Team, key: String) -> String:
 	if cost < 0.0:
 		return "Already at maximum level."
 	if t.funds < cost:
-		return "Not enough funds (%s needed)." % UI.money(cost)
+		return "Not enough funds (%s needed)." % Fmt.money(cost)
 	t.funds -= cost
 	t.facilities[key] = int(t.facilities[key]) + 1
 	lg.add_news("%s upgraded to level %d." % [FACILITY_INFO[key]["name"], t.facilities[key]], "finance")

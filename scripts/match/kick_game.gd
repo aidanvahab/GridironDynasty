@@ -6,6 +6,7 @@ extends Node3D
 ## The kick is a real projectile checked against the goal plane.
 
 signal finished(made: bool, info: Dictionary)
+signal kicked(power: float)
 
 enum Stage { AIM, POWER, FLIGHT, DONE }
 
@@ -136,7 +137,7 @@ func _kick(p: float) -> void:
 	_t = 0.0
 	kicker.rig.set_pose(PlayerRig.Pose.KICK)
 	# Accuracy: inaccurate kickers and over-swinging push the ball off line.
-	var sigma := 0.012 + (99.0 - k_acc) * 0.0011 + maxf(0.0, p - 0.92) * 0.12
+	var sigma := 0.008 + (99.0 - k_acc) * 0.0009 + maxf(0.0, p - 0.92) * 0.12
 	var hook := rng.randfn(0.0, sigma)
 	var yaw := aim + hook
 	var fwd := FieldCoords.forward(dir)
@@ -146,7 +147,7 @@ func _kick(p: float) -> void:
 	_vel = horiz * v * cos(ELEVATION) + Vector3.UP * v * sin(ELEVATION)
 	ball.state = Football.State.DEAD
 	ball.visible = true
-	Audio.play("kick", 1.0)
+	kicked.emit(p)
 
 func _check_goal(prev: Vector3, cur: Vector3) -> void:
 	var plane_x := float(dir) * 60.0

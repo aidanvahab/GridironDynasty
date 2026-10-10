@@ -132,6 +132,7 @@ func _build_world() -> void:
 	kick = KickGame.new()
 	add_child(kick)
 	kick.rng.seed = rng.randi()
+	kick.kicked.connect(func(_p): Audio.play("kick", 1.0))
 	kick.finished.connect(func(made, info):
 		_kick_done = true
 		_kick_made = made
@@ -139,6 +140,7 @@ func _build_world() -> void:
 	cam = BroadcastCamera.new()
 	add_child(cam)
 	cam.play = live
+	live.camera = cam ## mouse aiming projects through the broadcast camera
 	cam.assist = bool(Settings.get_value("camera_assist"))
 	cam.shake_enabled = bool(Settings.get_value("camera_shake"))
 	cam.set_mode(BroadcastCamera.Mode.ORBIT, true)

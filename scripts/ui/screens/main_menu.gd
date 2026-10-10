@@ -27,6 +27,15 @@ func _build_world() -> void:
 	_stadium.build(["classic", "modern", "historic"][randi() % 3], prim, sec, Color("#42B7AD"), "night", [0.3, 0.55, 0.85][quality], randi())
 	_stadium.apply_quality(quality)
 	_stadium.set_excitement(0.35)
+	var board := ColorRect.new()
+	board.color = Palette.NAVY
+	board.size = Vector2(_stadium.scoreboard_viewport.size)
+	_stadium.scoreboard_viewport.add_child(board)
+	var title := UI.label("GRIDIRON DYNASTY", 92, Palette.ORANGE, "display")
+	title.size = board.size
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	board.add_child(title)
 	var field := FieldBuilder.new()
 	add_child(field)
 	field.build(prim, Color("#1A2C45"), td["name"], "Dynasty", UI.font("heading"))
