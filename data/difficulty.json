@@ -1,0 +1,23 @@
+{
+  "levels": [
+    {"id": "rookie", "name": "Rookie", "desc": "Slower defensive reactions, softer coverage and forgiving tackles. Ideal for learning.",
+     "react": 0.42, "coverage_lag": 1.45, "tackle": 0.72, "rush": 0.72, "catch_bonus": 0.08, "int_mult": 0.55, "sim_bonus": -5.0, "cpu_turnovers": 1.25, "pursuit": 0.9},
+    {"id": "pro", "name": "Pro", "desc": "Balanced, realistic football. The recommended experience.",
+     "react": 0.3, "coverage_lag": 1.0, "tackle": 0.9, "rush": 0.9, "catch_bonus": 0.0, "int_mult": 0.85, "sim_bonus": -1.5, "cpu_turnovers": 1.05, "pursuit": 0.96},
+    {"id": "allpro", "name": "All-Pro", "desc": "Quick, disciplined defenders. Mistakes get punished.",
+     "react": 0.22, "coverage_lag": 0.82, "tackle": 1.02, "rush": 1.02, "catch_bonus": -0.03, "int_mult": 1.05, "sim_bonus": 1.0, "cpu_turnovers": 1.0, "pursuit": 1.0},
+    {"id": "legend", "name": "Legend", "desc": "Elite reaction speed and tight coverage. For dynasty builders only.",
+     "react": 0.16, "coverage_lag": 0.7, "tackle": 1.1, "rush": 1.12, "catch_bonus": -0.06, "int_mult": 1.2, "sim_bonus": 3.0, "cpu_turnovers": 0.95, "pursuit": 1.04}
+  ],
+  "game_lengths": [
+    {"name": "Quick", "quarter": 240, "runoff": 0.45, "desc": "4-minute quarters, about 15 minutes per game"},
+    {"name": "Standard", "quarter": 360, "runoff": 0.6, "desc": "6-minute quarters, about 25 minutes per game"},
+    {"name": "Extended", "quarter": 600, "runoff": 0.8, "desc": "10-minute quarters"},
+    {"name": "Full", "quarter": 900, "runoff": 1.0, "desc": "Full 15-minute quarters"}
+  ],
+  "assist": [
+    {"name": "Off", "desc": "Free aiming. No landing preview."},
+    {"name": "Standard", "desc": "Landing preview and slight accuracy help."},
+    {"name": "Full", "desc": "One-button throws to receivers with automatic lead and power."}
+  ]
+}
