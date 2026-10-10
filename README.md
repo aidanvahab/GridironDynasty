@@ -125,7 +125,10 @@ E2E scenarios (`tools/e2e_scenarios.gd`): `smoke`, `career` (TEST A),
 `match` (full autoplayed live match, TESTS B–G), `input` (real keyboard,
 mouse and gamepad events, pause, fullscreen and resize — TEST K), `season`
 (TEST H), `persist_a` + `persist_b` (TEST I, separate processes),
-`settings_a` + `settings_b` (TEST J), `screens`.
+`settings_a` + `settings_b` (TEST J), `stability` (TEST L), `champ`, `screens`.
+Optional arguments: `speed=<n>` (time acceleration, e.g. 4–8 for headless
+match runs), `timeout=<game seconds>` (default 600 — raise it for `match`
+and `stability`, e.g. `timeout=7200`), `out=<screenshot dir>`.
 
 Exported builds accept QA switches (ignored otherwise):
 `-- qa_shot=<png> qa_delay=<sec> qa_quit=1 qa_flow=quickmatch|career`.
