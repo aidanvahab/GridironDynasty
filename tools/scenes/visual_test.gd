@@ -42,6 +42,11 @@ func _ready() -> void:
 		cam.position = Vector3(-30, 32, 50)
 		cam.look_at(Vector3(0, 0, 0))
 		cam.fov = 60
+	elif shot == "endzone":
+		# From the field of play looking into the home end zone.
+		cam.position = Vector3(-30, 14, 0)
+		cam.look_at(Vector3(-55, 0, 0))
+		cam.fov = 55
 	elif shot == "close":
 		cam.position = Vector3(-8, 2.2, 4)
 		cam.look_at(Vector3(-12, 1.1, -0.5))

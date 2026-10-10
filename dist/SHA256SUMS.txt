@@ -1,3 +1,3 @@
-0a001029cc56367e436c94849cf18f619d533a5caa073f6f8efc507ad025a7ee  GridironDynasty-1.0.0-linux-x86_64.tar.gz
-66de850501711c586bbe42ca32bc47d4e3e1b01651d9554d604b19dd5984f488  GridironDynasty-1.0.0-macos-universal.zip
-1765f596edab843f81f1edc85b246f524f60de3b62a494f35b5f4331aac35e6d  GridironDynasty-1.0.0-windows-x86_64.zip
+57e218b14d0a7fcfa12338631cb432d5e6607321f7e4a0a1515f487c2077cdd9  GridironDynasty-1.0.0-linux-x86_64.tar.gz
+0dfd374f537617d3b11f3a8da954cace09e9e27d4ef184ddf542ace714167736  GridironDynasty-1.0.0-macos-universal.zip
+7910bd2ec8031d54162c02352ef697b8f07e1ca2efb533c5cfe56899ab84be3a  GridironDynasty-1.0.0-windows-x86_64.zip

@@ -98,7 +98,8 @@ func _build_endzone_text(home_name: String, away_name: String, hc: Color, ac: Co
 		var x: float = side[0]
 		var c: Color = side[2]
 		var txt := String(side[1]).to_upper()
-		var yaw := -PI / 2 if x < 0.0 else PI / 2
+		# Letters read upright from the field of play (tops toward the end line).
+		var yaw := PI / 2 if x < 0.0 else -PI / 2
 		var l := _flat_label(txt, Vector3(x, 0.02, 0), yaw, 5.2, Color(0.97, 0.96, 0.93, 0.95), c.darkened(0.5))
 		_endzone_labels.append(l)
 
