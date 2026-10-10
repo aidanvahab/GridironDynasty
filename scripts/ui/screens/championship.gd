@@ -48,9 +48,16 @@ func _build_trophy(ut: Team) -> void:
 	_trophy = Node3D.new()
 	add_child(_trophy)
 	var gold := StandardMaterial3D.new()
+	# Partly metallic with a warm emission so the trophy reads as gold even
+	# under a dark night sky (which a pure mirror would reflect as black).
 	gold.albedo_color = Color("#F4C95D")
-	gold.metallic = 1.0
-	gold.roughness = 0.22
+	gold.metallic = 0.55
+	gold.roughness = 0.3
+	gold.emission_enabled = true
+	gold.emission = Color("#B8862B")
+	gold.emission_energy_multiplier = 0.45
+	gold.rim_enabled = true
+	gold.rim = 0.6
 	var base_m := StandardMaterial3D.new()
 	base_m.albedo_color = Palette.NAVY
 	base_m.roughness = 0.4
@@ -100,7 +107,7 @@ func _add_confetti(ut: Team) -> void:
 	p.lifetime = 6.0
 	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
 	p.emission_box_extents = Vector3(16, 0.5, 16)
-	p.position = Vector3(0, 18, 0)
+	p.position = Vector3(0, 12, 0)
 	p.direction = Vector3(0, -1, 0)
 	p.spread = 30.0
 	p.gravity = Vector3(0, -1.6, 0)
@@ -109,12 +116,12 @@ func _add_confetti(ut: Team) -> void:
 	p.angular_velocity_min = -360.0
 	p.angular_velocity_max = 360.0
 	var q := QuadMesh.new()
-	q.size = Vector2(0.18, 0.1)
+	q.size = Vector2(0.4, 0.24)
 	var m := StandardMaterial3D.new()
 	m.vertex_color_use_as_albedo = true
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	m.emission_enabled = true
-	m.emission = Color(0.3, 0.3, 0.3)
+	m.emission = Color(0.55, 0.55, 0.55)
 	q.material = m
 	p.mesh = q
 	var g := Gradient.new()
@@ -168,4 +175,10 @@ func _build_ui(lg: League, ut: Team) -> void:
 	UI.place_at(b, Vector2(-210, -130))
 	root.add_child(b)
 	b.call_deferred("grab_focus")
-	UI.pop_in(v, 0.4)
+	var bg := ColorRect.new()
+	bg.color = Color(Palette.NAVY, 0.55)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	bg.offset_bottom = 290
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(bg)
+	root.move_child(bg, 0)

@@ -93,21 +93,30 @@ static func is_pass(play_def: Dictionary) -> bool:
 static func suggested(down: int, togo: float, ball_on: float, clock: float, quarter: int, score_diff: int) -> Array:
 	var tags: Array = []
 	if ball_on >= 88.0:
-		tags.append("goal_line")
-	if ball_on >= 80.0:
+		tags.append_array(["goal_line", "redzone"])
+	elif ball_on >= 78.0:
 		tags.append("redzone")
 	if togo <= 2.0:
-		tags.append("short_yardage")
-	elif togo >= 9.0 and down >= 2:
-		tags.append("long")
-		tags.append("deep")
+		tags.append_array(["short_yardage", "run", "quick"])
+	elif togo <= 6.0:
+		tags.append_array(["short", "medium", "run", "quick"])
+	elif togo <= 10.5:
+		tags.append_array(["medium", "run", "pa", "short"])
+		if down == 1:
+			tags.append("deep")
 	else:
-		tags.append("medium")
-	if (quarter == 2 or quarter >= 4) and clock < 120.0 and score_diff <= 0:
+		tags.append_array(["long", "deep", "medium", "blitz_beater"])
+	var late := (quarter == 2 or quarter >= 4) and clock < 120.0
+	if late and score_diff <= 0:
+		tags.erase("run")
 		tags.append("clock")
 	var out: Array = []
 	for p in plays():
 		if p.get("special", "") != "":
+			continue
+		if ball_on < 78.0 and (p.get("tags", []).has("goal_line") and not p.get("tags", []).has("short_yardage")):
+			continue
+		if p.get("tags", []).has("desperation") and not (late and clock < 12.0):
 			continue
 		for t in p.get("tags", []):
 			if tags.has(t):

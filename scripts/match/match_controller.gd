@@ -285,6 +285,10 @@ func _bot_input_for(p: Dictionary) -> BotInput:
 
 # ================================================================= input
 
+func _input(event: InputEvent) -> void:
+	if live != null and live.input is HumanInput and not paused:
+		(live.input as HumanInput).push_event(event)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if quitting:
 		return
@@ -706,7 +710,9 @@ func _user_down() -> void:
 		_choice = _auto_choice()
 	else:
 		hud.show_play_select(_context())
-		hud.set_hints("Choose a play   ·   [F] flip   ·   [T] timeout" + ("   ·   [V] replay" if replay_available else ""))
+		hud.set_hints("")
+		if replay_available:
+			hud.toast("Press [V] to watch the replay")
 	while _choice.is_empty() and not quitting:
 		await get_tree().process_frame
 	hud.hide_play_select()

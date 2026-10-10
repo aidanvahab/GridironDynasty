@@ -292,6 +292,14 @@ func _pad(btn: JoyButton, pressed: bool) -> void:
 	e.device = 0
 	Input.parse_input_event(e)
 
+## Waits for `sec` seconds of live-play (game) time, independent of fps.
+func _wait_live(mc: MatchController, sec: float) -> void:
+	var start := mc.live.t
+	var guard := 0
+	while mc.live.t - start < sec and mc.state_tag == "live" and guard < 4000:
+		guard += 1
+		await tree.process_frame
+
 func _wait_state(mc: MatchController, tag: String, max_sec: float) -> bool:
 	var t := 0.0
 	while mc.state_tag != tag and t < max_sec:
@@ -322,7 +330,7 @@ func scenario_input() -> void:
 	await wait(0.6)
 	await _tap(KEY_SPACE)
 	expect(await _wait_state(mc, "live", 5.0), "Space snapped the ball")
-	await wait(0.9)
+	await _wait_live(mc, 0.9)
 	await _tap(KEY_1)
 	await wait(0.1)
 	expect(mc.live.target_idx == 0, "key 1 targeted receiver 1")
@@ -330,7 +338,7 @@ func scenario_input() -> void:
 	_mouse_move(x_screen + Vector2(0, -40))
 	await wait(0.2)
 	_mouse_button(true, x_screen)
-	await wait(0.55)
+	await _wait_live(mc, 0.55)
 	expect(mc.live.charge > 0.3, "holding the mouse charges the throw (%.2f)" % mc.live.charge)
 	await shot("input_charging")
 	_mouse_button(false, x_screen)
@@ -375,9 +383,9 @@ func scenario_input() -> void:
 		await wait(0.1)
 		_pad(JOY_BUTTON_A, false)
 		expect(await _wait_state(mc, "live", 5.0), "gamepad A snapped")
-		await wait(1.0)
+		await _wait_live(mc, 1.0)
 		_pad(JOY_BUTTON_B, true)
-		await wait(0.5)
+		await _wait_live(mc, 0.5)
 		expect(mc.live.target_idx == 1 and mc.live.charge > 0.2, "holding B targets receiver 2 and charges")
 		_pad(JOY_BUTTON_B, false)
 		await wait(0.3)
@@ -408,3 +416,57 @@ func scenario_input() -> void:
 	mc._on_pause_action("quit")
 	await wait(2.0)
 	expect(app().screen is Hub, "quit to hub from pause")
+
+# ---------------------------------------------------------------- stability (TEST L)
+
+func scenario_stability() -> void:
+	await _new_career(1)
+	var lg: League = app().league
+	lg.settings["game_length"] = 0
+	var games := int(args.get("games", "3"))
+	var node_counts: Array = []
+	var obj_counts: Array = []
+	for i in games:
+		var g := Season.user_game(lg)
+		if g.is_empty():
+			break
+		app().start_franchise_match(g)
+		await wait(2.0)
+		var mc: MatchController = app().screen
+		mc.autoplay = true
+		mc.live.input = null
+		var rules_ref: RulesEngine = mc.rules
+		var t := 0.0
+		while is_instance_valid(mc) and app().screen == mc and t < 2400.0:
+			await wait(1.0)
+			t += 1.0
+		var st := rules_ref.state
+		expect(st.is_over(), "match %d finished (%d-%d, Q%d)" % [i + 1, st.score[0], st.score[1], st.quarter])
+		var tally := [0, 0]
+		for e in st.scoring_log:
+			tally[e["side"]] += int(e["points"])
+		expect(tally[0] == st.score[0] and tally[1] == st.score[1], "match %d score consistent" % (i + 1))
+		await wait(2.0)
+		node_counts.append(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
+		obj_counts.append(Performance.get_monitor(Performance.OBJECT_COUNT))
+		print("after match %d: nodes %d objects %d orphans %d" % [i + 1, node_counts.back(), obj_counts.back(), Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)])
+	expect(lg.week == games, "week advanced once per game (%d)" % lg.week)
+	if node_counts.size() >= 2:
+		expect(absi(int(node_counts.back()) - int(node_counts[0])) < 200, "no node leak across matches (%s)" % str(node_counts))
+	var owner := {}
+	var dup := false
+	for tm in lg.teams.values():
+		for pid in tm.roster:
+			if owner.has(pid):
+				dup = true
+			owner[pid] = true
+	expect(not dup, "no duplicated player ownership")
+
+func scenario_champ() -> void:
+	await _new_career(1)
+	var lg: League = app().league
+	lg.history["champions"].append({"year": lg.year, "team": lg.user_team_id, "name": lg.user_team().full_name(), "runner_up": "HBG", "mvp": lg.user_team().roster[0]})
+	app().change_screen(ChampionshipScreen.new())
+	await wait(5.0)
+	await shot("championship")
+	expect(app().screen is ChampionshipScreen, "championship screen shown")
