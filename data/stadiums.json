@@ -1,0 +1,51 @@
+{
+  "classic": {
+    "name": "Traditional Outdoor",
+    "capacity": 64000,
+    "tiers": [{"rows": 22, "depth": 0.95, "rise": 0.5, "gap": 0.0}, {"rows": 18, "depth": 0.95, "rise": 0.62, "gap": 3.5}],
+    "end_tiers": [{"rows": 20, "depth": 0.95, "rise": 0.5, "gap": 0.0}],
+    "setback": 9.0,
+    "concrete": "#8A8F98",
+    "facade": "#2A3442",
+    "seat_mix": 0.55,
+    "roof": false,
+    "light_towers": true,
+    "ribbon": false,
+    "brick": false,
+    "trees": false,
+    "boards": 1
+  },
+  "modern": {
+    "name": "Modern Arena",
+    "capacity": 82000,
+    "tiers": [{"rows": 20, "depth": 0.95, "rise": 0.48, "gap": 0.0}, {"rows": 14, "depth": 0.95, "rise": 0.6, "gap": 4.5}, {"rows": 16, "depth": 0.95, "rise": 0.72, "gap": 4.0}],
+    "end_tiers": [{"rows": 20, "depth": 0.95, "rise": 0.48, "gap": 0.0}, {"rows": 14, "depth": 0.95, "rise": 0.65, "gap": 4.5}],
+    "setback": 10.0,
+    "concrete": "#5C6470",
+    "facade": "#1A2C45",
+    "seat_mix": 0.7,
+    "roof": true,
+    "light_towers": false,
+    "ribbon": true,
+    "brick": false,
+    "trees": false,
+    "boards": 2
+  },
+  "historic": {
+    "name": "Historic Grounds",
+    "capacity": 38000,
+    "tiers": [{"rows": 24, "depth": 0.95, "rise": 0.42, "gap": 0.0}],
+    "end_tiers": [{"rows": 14, "depth": 0.95, "rise": 0.42, "gap": 0.0}],
+    "setback": 7.5,
+    "concrete": "#9A8F80",
+    "facade": "#8C3B2A",
+    "seat_mix": 0.35,
+    "roof": false,
+    "light_towers": true,
+    "ribbon": false,
+    "brick": true,
+    "trees": true,
+    "open_end": true,
+    "boards": 1
+  }
+}
