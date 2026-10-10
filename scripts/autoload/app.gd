@@ -11,6 +11,7 @@ var last_report: Dictionary = {}
 var _fade_layer: CanvasLayer
 var _fade: ColorRect
 var _busy := false
+var _pending_screen: Node = null
 var _toast: Label
 var _quick_cfg: Dictionary = {}
 
@@ -94,9 +95,13 @@ func toast(text: String) -> void:
 	tw.tween_interval(2.2)
 	tw.tween_property(_toast, "modulate:a", 0.0, 0.6)
 
+## Fades to `node`. A request made during a transition is kept (latest wins)
+## and runs as soon as the current one finishes.
 func change_screen(node: Node) -> void:
 	if _busy:
-		node.queue_free()
+		if _pending_screen != null and is_instance_valid(_pending_screen) and _pending_screen != node:
+			_pending_screen.queue_free()
+		_pending_screen = node
 		return
 	_busy = true
 	get_tree().paused = false
@@ -115,6 +120,11 @@ func change_screen(node: Node) -> void:
 	await tw2.finished
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_busy = false
+	if _pending_screen != null:
+		var next := _pending_screen
+		_pending_screen = null
+		if is_instance_valid(next):
+			change_screen(next)
 
 # ================================================================= navigation
 
@@ -207,6 +217,8 @@ func start_franchise_match(g: Dictionary) -> void:
 	await get_tree().process_frame
 	while _busy:
 		await get_tree().process_frame
+	if not is_instance_valid(mc) or screen != mc:
+		return  # superseded by another screen request
 	mc.match_finished.connect(_on_franchise_match_finished.bind(g))
 	mc.start({"league": league, "home_id": g["home"], "away_id": g["away"], "user_side": user_side,
 		"playoff": g.get("playoff", false), "game": g, "tod": tod, "title": title, "seed": hash(g["id"]) + league.seed})
@@ -251,5 +263,7 @@ func start_quick_match(home_id: String, away_id: String, user_home: bool, tod: S
 	await get_tree().process_frame
 	while _busy:
 		await get_tree().process_frame
+	if not is_instance_valid(mc) or screen != mc:
+		return  # superseded by another screen request
 	mc.match_finished.connect(func(_s): go_main_menu())
 	mc.start({"league": lg, "home_id": home_id, "away_id": away_id, "user_side": 0 if user_home else 1, "playoff": false, "game": {}, "tod": tod, "title": "Quick Match", "seed": randi()})
